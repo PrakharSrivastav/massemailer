@@ -1,0 +1,7 @@
+email,phone,mobile,place,email-status,fname,lname
+something1@email.net,9090909099,9090909098,delhi,3,fname1,lname1
+something2@email.net,9090909100,9090909099,mumbai,3,fname2,lname2
+something3@email.net,9090909101,9090909100,banglore,3,fname3,lname3
+something4@email.net,9090909102,9090909101,delhi,3,fname4,lname4
+something5@email.net,9090909103,9090909102,,3,fname5,lname5
+something6@email.net,9090909104,9090909103,jaipur,3,fname6,lname6
