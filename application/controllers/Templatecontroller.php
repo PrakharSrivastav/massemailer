@@ -264,6 +264,11 @@ class Templatecontroller extends CI_Controller {
                 if ($upload_path === "" || empty($upload_path)) {
 
                     $file_name = $this->input->post("template_image_name").$this->input->post("file_ext");
+					/*
+					echo $file_name;
+					echo "\ndirname "+$dir_name;
+					echo "\nupload_path"+$upload_path;
+					*/
                     $config = array(
                         "upload_path" => $dir_name,
                         "max_size" => "2048000",
@@ -353,6 +358,7 @@ class Templatecontroller extends CI_Controller {
                 $dir = base_url() . $upload_dir."/";
 
                 $post_array = $this->input->post();
+				//print_r($post_array);
                 $src_details = array();
                 foreach ($image_array as $i) {
                     //echo $dir.$i;
@@ -361,7 +367,7 @@ class Templatecontroller extends CI_Controller {
                     $temp["src"] = $dir . $i;
                     $src_details[] = $temp;
                 }
-                //print_r($post_array);
+                //print_r($src_details);
 
                 
 
@@ -380,17 +386,18 @@ class Templatecontroller extends CI_Controller {
                         $this->load->library("html_dom");
                         $this->html_dom->loadHTML($template_content);
                         $img = $this->html_dom->find("img");
+						$str = str_replace("&amp;","&",$template_content);
                         //print_r($img);
                         foreach ($img as $a) {
                             $image_source = $a->src;
                             foreach ($src_details as $s) {
                                 if (stripos($image_source, $s["image"]) !== false) {
-                                    $template_content = str_replace($image_source, $s["src"], $template_content);
+                                    $str = str_replace($image_source, $s["src"], $str);
                                 }
                             }
                         }
 
-                        $this->html_dom->loadHTML($template_content);
+                        $this->html_dom->loadHTML($str);
                         $anchor = $this->html_dom->find("a");
                         foreach ($anchor as $a) {
                             $href = $a->href;
@@ -398,20 +405,23 @@ class Templatecontroller extends CI_Controller {
                             if ($href != "0") {
                                 foreach ($src_details as $s) {
                                     if (stripos($href, $s["image"]) !== false) {
-                                        $template_content = str_replace($href, $s["src"], $template_content);
+                                        $str = str_replace($href, $s["src"], $str);
                                     }
                                 }
                             }
                         }
-                        $template_content = "Hi #NAME#,<br/>".$template_content;
-                        $html = str_replace("CONTENT", $template_content, $html_template);
+                        $str = "Hi #NAME#,<br/>".$str;
+						$str = str_replace(array("> <",">  <"),"><",$str);
+                        $html = str_replace("CONTENT", $str, $html_template);
                         $html = str_replace(array("\n","\r","\t"),"",$html);
+						
                         $insert_data = array(
                             "template_name" => $template_name,
                             "template_desc" => $template_desc,
                             //"template_subject" => $template_subject,
                             "template_content" => $html,
-                            "upload_dir" => $upload_dir
+                            "upload_dir" => $upload_dir,
+                            "last_updated"=>date("Y-m-d H:i:s")
                                 //"reply_to" => $reply_to,
                         );
 
@@ -444,36 +454,47 @@ class Templatecontroller extends CI_Controller {
                     $this->load->library("html_dom");
                     $this->html_dom->loadHTML($template_content);
                     $img = $this->html_dom->find("img");
+					//print_r($img);
+					$str = str_replace("&amp;","&",$template_content);
                     foreach ($img as $a) {
                         $image_source = $a->src;
+						//print_r($image_source);
                         foreach ($src_details as $s) {
                             if (stripos($image_source, $s["image"]) !== false) {
-                                $template_content = str_replace($image_source, $s["src"], $template_content);
+                            	//print_r($image_source);
+                            	//echo "<br />";
+                            	//print_r($s["image"]);
+                                //echo "<br />";
+                                //print_r($s["src"]);
+								//echo "<br/>";
+                                $str = str_replace($image_source , $s["src"],  $str);
+								//print_r($str);
                             }
                         }
                     }
-
-//                    $this->html_dom->loadHTML($template_content);
-//                    $anchor = $this->html_dom->find("a");
-//                    foreach ($anchor as $a) {
-//                        $href = $a->href;
+//					print_r($str);
+                   $this->html_dom->loadHTML($str);
+                   $anchor = $this->html_dom->find("a");
+                   foreach ($anchor as $a) {
+                       $href = $a->href;
 //                        //print($href);
-//                        if ($href != "0") {
-//                            foreach ($src_details as $s) {
-//                                if (stripos($href, $s["image"]) !== false) {
-//                                    $template_content = str_replace($href, $s["src"], $template_content);
-//                                }
-//                            }
-//                        }
-//                    }
-                    $template_content = str_replace(array("\n","\r","\t"),"",$template_content);
-                    $template_content = str_replace(array("> <"),"><",$template_content);
+                       if ($href != "0") {
+                           foreach ($src_details as $s) {
+                               if (stripos($href, $s["image"]) !== false) {
+                                   $str = str_replace($href, $s["src"], $str);
+                               }
+                           }
+                       }
+                   }
+                    $str = str_replace(array("\n","\r","\t"),"",$str);
+                    $str = str_replace(array("> <"),"><",$str);
                     $status = false;
                     $where = array("template_id" => $template_id);
                     $update = array(
                         "template_name" => $template_name,
                         "template_desc" => $template_desc,
-                        "template_content" => $template_content,
+                        "template_content" => $str,
+                        "last_updated"=>date("Y-m-d H:i:s")
                     );
                     $template = array("where" => $where, "update" => $update);
 

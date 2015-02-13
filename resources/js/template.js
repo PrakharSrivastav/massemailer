@@ -41,7 +41,7 @@ $(function () {
 
                     var formData = new FormData(document.getElementById("template_image_upload_form"));
                     formData.append("file_ext", "." + ext);
-                    formDate.append("target_file_name",image_name);
+                    formData.append("target_file_name",image_name);
                     ajaxRequest.open('POST', base_url + 'templatecontroller/ajaxy', false);
                     ajaxRequest.send(formData);
                     $("#upload_image_status_success").html("<p><i class='fa fa-check'></i>" + ajaxRequest.responseText + "</p>");

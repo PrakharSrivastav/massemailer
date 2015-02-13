@@ -385,7 +385,18 @@ class Campaigncontroller extends CI_Controller {
 
                 # get the post values
                 $template_name = $this->input->post("template_name");
-                $test_email = $this->input->post("test_email");
+                /*$test_email = $this->input->post("test_email");*/
+                $test_email = explode(",", $this->input->post("test_email"));
+				/*
+				$test_email = array();
+				foreach($temp as $email){
+					$temp1["email"] = $email;
+					$test_email[]=$temp1;
+				}
+				 */
+				if(count($test_email)>3){
+					throw new Exception("You can not use more than 3 email-ids to test. Please go back and try again with a lesser count");
+				}
                 $campaign_sub = $this->input->post("template_subject");
                 $reply_to_address = $this->input->post("reply_to");
                 $campaign_sender = $this->input->post("sender_name");
@@ -398,7 +409,7 @@ class Campaigncontroller extends CI_Controller {
                 if (($reply_to_address === "" || is_null($reply_to_address)) ||
                         ($campaign_sender === "" || is_null($campaign_sender)) ||
                         ($template_name === "" || is_null($template_name)) ||
-                        ($test_email === "" || is_null($test_email)) ||
+                        (is_null($test_email)) ||
                         (($campaign_sub === "" || is_null($campaign_sub)))) {
                     throw new Exception("campaigncontroller::test_email_campaign::invalid input parameters");
                 } else {
@@ -430,6 +441,36 @@ class Campaigncontroller extends CI_Controller {
                     );
 
                     # set the smtp configuration
+                    $this->load->library('email');
+	                $this->email->clear();
+	                $config['protocol'] = 'smtp';
+	                $config['mailtype'] = 'html';
+	                $config['smtp_host'] = $my_smtp_details[0]['smtp_host'];
+	                $config['smtp_crypto'] = $my_smtp_details[0]['smtp_auth'];
+	                $config['smtp_user'] = $my_smtp_details[0]['sender_email'];
+	                $config['smtp_pass'] = $my_smtp_details[0]['smtp_pass'];
+	                $config['smtp_port'] = (int) $my_smtp_details[0]['smtp_port'];
+	                $config['charset'] = 'utf-8';
+	                $config['wordwrap'] = false;
+	                $this->email->initialize($config);
+	                $this->email->subject($campaign_sub);
+	                $this->email->message($template_details[0]['template_content']);
+	                $this->email->to($test_email);
+	                $this->email->from($my_smtp_details[0]['sender_email'], $campaign_sender);
+	                $this->email->reply_to($reply_to_address);
+	                $this->email->set_header("X-MC-Subaccount", "smartcontactpreview");
+	                $this->email->set_header("X-MC-Metadata", $meta);
+					$this->email->set_header("X-Mailer", "smartcontact.biz");
+					$this->email->set_header("X-Originating-IP", $_SERVER['REMOTE_ADDR']);
+					$this->email->set_header("X-Organization", $campaign_sender);
+					$this->email->set_header("X-Copyright", $campaign_sender);
+					$this->email->set_header("X-Unsubscribe-email", "unsub@smartcontact.biz");
+					$this->email->set_header("X-Unsubscribe-Web", base_url()."unsubscribe");
+					$this->email->set_header("X-Report-Abuse", "Please forward a copy of this message, including all headers, to abuse@smartcontact.biz");
+	                
+	
+					# PHP MAILER CODE. USING EMAIL LIBRARY FROM CODEIGNITER IINSTEAD
+                    /*
                     $config = array(
                         'is_smtp' => true,
                         'is_html' => true,
@@ -443,22 +484,33 @@ class Campaigncontroller extends CI_Controller {
                         "smtp_sub" => $campaign_sub,
                         "smtp_body" => $template_details[0]['template_content'],
                         "smtp_alt_body" => "This is test email body",
-                        "smtp_to" => array(array(
-                                "email" => $test_email)),
+                        //"smtp_to" => array(array("email" => $test_email)),
+                        "smtp_to" => $test_email,
                         "smtp_from" => array(array(
                                 "email" => $my_smtp_details[0]['sender_email'],
                                 "name" => $campaign_sender),),
                         "smtp_reply_to" => array(array(
                                 "email" => $reply_to_address),),
-                        "headers" => array("X-MC-Subaccount: smartcontactpreview", "X-MC-Metadata: $meta")
+                        "headers" => array(
+                        	"X-MC-Subaccount: smartcontactpreview", 
+                        	"X-MC-Metadata: $meta",
+							"X-Mailer: smartcontact.biz",
+							"X-Originating-IP: ".$_SERVER['REMOTE_ADDR'],
+							"X-Organization: $campaign_sender",
+							"X-Copyright: $campaign_sender",
+							"X-Unsubscribe-email:  unsub@smartcontact.biz",
+							"X-Unsubscribe-Web: ".base_url()."unsubscribe",
+							"X-Report-Abuse: Please forward a copy of this message, including all headers, to abuse@smartcontact.biz"
+							)
                     );
 
                     # load the custom phpmailer library
                     $this->load->library('My_PHPMailer', $config, 'emailer');
                     $dt = new DateTime("now");
-
+					*/
+					
                     # if the email is sent successfully
-                    if ($this->emailer->send_email()) {
+                    if ($this->email->send()) {
 
                         # load all the templates
                         $this->load->model("Template_model", "template");
@@ -468,7 +520,7 @@ class Campaigncontroller extends CI_Controller {
                         $this->load->model("User_model", "user");
                         $page_data = $this->user->get_my_lists_data($this->session->userdata("user_id"));
                         $page_data = array_merge($page_data, $this->user->get_lists_shared_with_me($this->session->userdata("user_id")));
-
+						$this->load->helper('form');
                         # load the create camoaign page
                         $this->load->view("pages/create-campaign-page", array(
                             "template_data" => $template_data,
@@ -581,7 +633,7 @@ class Campaigncontroller extends CI_Controller {
 
     public function run_cron_job() {
         try {
-            $path = FCPATH . "../../reports/";
+            $path = FCPATH . "reports/";
             $file_name = "cron-details.txt";
 
             # LOGGING
@@ -853,7 +905,7 @@ class Campaigncontroller extends CI_Controller {
             if ($this->session->has_userdata("is_logged_in") && $this->session->userdata('is_logged_in') ) {
 				//print_r(FCPATH."../../reports");
 				$this->load->helper('download');
-				force_download($camp_id.".csv", file_get_contents(FCPATH . "../../reports/".$camp_id.".txt"));
+				force_download($camp_id.".csv", file_get_contents(FCPATH . "reports/".$camp_id.".txt"));
 				
 			} else {
                 # if user is logged-in OR the session has expired, show below message

@@ -13,7 +13,7 @@
                          else if ($user_role === "2")
                              echo "<a href='".base_url()."groupadmin/group_admin_dashboard'>Home</a>";
                          else if ($user_role === "3")
-                             echo "<a href='".base_url()."user/users_dashboard'>Home</a>";
+                             echo "<a href='".base_url()."users/users_dashboard'>Home</a>";
                         ?>
                     </li><li><i class="fa fa-desktop"></i>Edit template</li>
                 </ol>
@@ -46,20 +46,24 @@
             </div><br/>
             <div class="form-group">
                 <label class = "col-sm-2 text-right"for="template_name">Template Name*</label>
-                <div class="col-sm-10">
+                <div class="col-sm-4">
                     <input class="form-control col-sm-6" type="text" required="required" value="<?php echo $show_template[0]["template_name"]; ?>" id="template_name" name="template_name">
                 </div>
-            </div>
-            <div class="form-group">
                 <label class = "col-sm-2 text-right"for="template_desc">Template Description</label>
-                <div class="col-sm-10">
+                <div class="col-sm-4">
                     <input class="form-control col-sm-6" type="text" value="<?php echo $show_template[0]["template_desc"]; ?>" id="template_desc" name="template_desc">
                 </div>
             </div>
-<!--            <div class="form-group">
+<!--              <div class="form-group">
+                <label class = "col-sm-2 text-right"for="template_desc">Template Description</label>
+                <div class="col-sm-10">
+                    <input class="form-control col-sm-6" type="text" value="<?php //echo $show_template[0]["template_desc"]; ?>" id="template_desc" name="template_desc">
+                </div>
+            </div>
+          <div class="form-group">
                 <label class = "col-sm-2 text-right"for="reply_to">Reply-to address*</label>
                 <div class="col-sm-10">
-                    <input class="form-control col-sm-6" type="email" required="required" value="<?php echo $show_template[0]["reply_to"]; ?>" id="reply_to" name="reply_to">
+                    <input class="form-control col-sm-6" type="email" required="required" value="<?php //echo $show_template[0]["reply_to"]; ?>" id="reply_to" name="reply_to">
                 </div>
             </div>-->
             

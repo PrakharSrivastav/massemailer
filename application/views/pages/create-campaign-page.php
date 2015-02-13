@@ -8,7 +8,7 @@
         <meta name="keyword" content="Creative, Dashboard, Admin, Template, Theme, Bootstrap, Responsive, Retina, Minimal">
         <link rel="shortcut icon" href="img/favicon.png">
 
-        <title>Create Templates</title>
+        <title>Manage Campaigns</title>
         <?php
         $this->load->helper('html');
         echo link_tag('resources/css/bootstrap.min.css');
@@ -82,11 +82,13 @@
                     }
                     else {
                         var validation = true;
-                        if (email.split(",").length > 1) {
+                        
+                        if (email.split(",").length > 3) {
                             validation = false;
-                            alert("Only one email-id is allowed. email cannot contain a comma (,).");
+                            alert("Maximum 3 email-ids are allowed for sending test emails. Please try again with a lesser count.");
                             return false;
                         }
+                        /*
                         if (email.split(";").length > 1) {
                             validation = false;
                             alert("Only one email-id is allowed. email cannot contain a semi-colon (,).");
@@ -97,6 +99,7 @@
                             alert("Only one email-id is allowed. email cannot contain a space.");
                             return false;
                         }
+                        */
                         if (reply_to.split(",").length > 1) {
                             validation = false;
                             alert("Only one email-id is allowed in reply to field. email cannot contain a comma (,).");

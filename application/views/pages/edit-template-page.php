@@ -8,7 +8,7 @@
         <meta name="keyword" content="Creative, Dashboard, Admin, Template, Theme, Bootstrap, Responsive, Retina, Minimal">
         <link rel="shortcut icon" href="img/favicon.png">
 
-        <title>Create Templates</title>
+        <title>Edit Templates</title>
         <?php
         $this->load->helper('html');
         echo link_tag('resources/css/bootstrap.min.css');
@@ -95,6 +95,7 @@
                 selector: '#edit-template',
                 plugins: 'template  code attachment advlist paste autolink link image lists charmap print preview',
                 paste_data_images: true,
+                height:400,
                 image_list: [<?php
         foreach ($image_details as $image) {
             $title = $image["title"];
@@ -154,11 +155,11 @@
 //                        $("#template_desc").attr("disabled", false);
 //                        $("#submit_template_to_database").attr("disabled", false);
                         $("#validate_template").attr("disabled", true);
-
+						// regex for identifying the image tags
                         var html = tinyMCE.activeEditor.getContent();
-                        var m, urls = [], rex = /<img.*?src="([^">]*\/([^">]*?))".*?>/g;
+                        var m, urls = [], rex = /<img.*?src="((.*?))".*?>/g;
                         while (m = rex.exec(html)) {
-                            rex2 = /[a-zA-Z0-9|-|_]*\.(png|jpeg|gif|tif|img|ico|img|jpg)\[?|w*]$/i;
+                            rex2 = /[a-zA-Z0-9-_]*\.(png|jpeg|gif|tif|img|ico|img|jpg)\[?|w*]$/i;
                             v = rex2.exec(m[1]);
                             if (v !== null) {
                                 if (-1 === jQuery.inArray(v[0], urls)) {
@@ -166,9 +167,12 @@
                                 }
                             }
                         }
-                        var url_att = [], rex3 = /<a.*?href="([^">]*\/([^">]*?))".*?>/g;
+                        
+                        // regex for identifying the other attachment tags
+                        // var url_att = [], rex3 = /<a.*?href="([^">]*\/([^">]*?))".*?>/g;
+                        var url_att = [], rex3 = /<a.*?href="(.*?)".*?>/g;
                         while (m = rex3.exec(html)) {
-                            rex4 = /[a-zA-Z0-9|-|_]*\.(doc|docx|xls|xlsx|ppt|pps|wp|rtf|pdf|zip|rar|tar|txt)\[?|w*]$/i;
+                            rex4 = /[a-zA-Z0-9-_]*\.(doc|docx|xls|xlsx|ppt|pps|wp|rtf|pdf|zip|rar|tar|txt)\[?|w*]$/i;
                             v = rex4.exec(m[1]);
                             if (v !== null) {
                                 if (-1 === jQuery.inArray(v[0], url_att)) {
@@ -176,10 +180,12 @@
                                 }
                             }
                         }
-
-                        var url_html = [], rex_html = /<a.*?href="([^">]*\/([^">]*?))".*?>/g;
+						
+						// regex for identifying the html files
+                        // var url_html = [], rex_html = /<a.*?href="([^">]*\/([^">]*?))".*?>/g;
+                        var url_html = [], rex_html = /<a.*?href="(.*?)".*?>/g;
                         while (m = rex_html.exec(html)) {
-                            rex4html = /[a-zA-Z0-9|-|_]*\.(htm|html)\[?|w*]$/i;
+                            rex4html = /[a-zA-Z0-9-_]*\.(htm|html)\[?|w*]$/i;
                             v = rex4html.exec(m[1]);
                             if (v !== null) {
                                 if (-1 === jQuery.inArray(v[0], url_att)) {
@@ -187,10 +193,14 @@
                                 }
                             }
                         }
-                        if (urls.length > 0) {
+                        // console.log(urls , urls.length);
+						// console.log(url_att, url_att.length);
+						// console.log(url_html,url_html.length);
+                        if (urls.length > 0 || url_att.length > 0 || url_html.length >0) {
                             count = 0;
                             $("#file_inputs_via_js").append("<br /><div class='rownew-element' style='padding:15px'>");
                             jQuery.each(urls, function (i, l) {
+                            	// console.log("appending"+l);
                                 $("#file_inputs_via_js").append(
                                         "<div>" +
                                         "<div id='div_" + l + "'class='col-sm-6' style='border-radius:5px;color:black;background-color:lightgrey;width:48%;margin:10px;padding:5px;'>" +
@@ -202,6 +212,7 @@
                                 count++;
                             });
                             jQuery.each(url_att, function (i, l) {
+                            	// console.log("appending"+l);
                                 $("#file_inputs_via_js").append(
                                         "<div>" +
                                         "<div id='div_" + l + "'class='col-sm-6' style='border-radius:5px;color:black;background-color:lightgrey;width:48%;margin:10px;padding:5px;'>" +
@@ -213,6 +224,7 @@
                                 count++;
                             });
                             jQuery.each(url_html, function (i, l) {
+                            	// console.log("appending"+l);
                                 $("#file_inputs_via_js").append(
                                         "<div>" +
                                         "<input  type='hidden' required='true' id='" + count + "' name='" + l + "'>" +
@@ -235,10 +247,11 @@
                     count = 0;
                     var message = "Following items are missing: ";
                     var f = $("input[required]").each(function () {
-//                        if ($(this).attr("name") !== "template_name")
-//                        {
-//                            url.push($(this).attr('name'));
-//                        }
+                        // if ($(this).attr("name") !== "template_name")
+                        // {
+                            // url.push($(this).attr('name'));
+                        // }
+						// console.log($(this).attr("name"));
                         if ($(this).val() === "") {
                             if ($(this).attr("name") === "template_name") {
                                 alert("Template name is missing. You cannot save template without providing a template name");
@@ -246,7 +259,7 @@
                                 return false;
                             }
                             else {
-                                alert($(this).attr('name') + "  " + $(this).attr('name').search(".htm"));
+                                //alert($(this).attr('name') + "  " + $(this).attr('name').search(".htm"));
                                 if ($(this).attr('name').search(".htm") < 0)
                                     message += "\n    " + count + ". Image " + $(this).attr('name');
                             }
@@ -254,12 +267,17 @@
                         }
                         else {
                             if ($(this).attr("name") !== "template_name")
-                            { url.push($(this).attr('name'));
+                            { 
+                            	//console.log($(this).attr("name"));
+                            	
+                            	url.push($(this).attr('name'));
+                            
                                 flag = true;
                             }
                         }
                         count++;
                     });
+                    // console.log(url);
                     if (flag === true) {
                         $("#template_form ").append("<input type='hidden' name='images' value='" + url + "'>");
                         $("#template_form ").append("<input type='hidden' name='upload_dir' value='" + dir_name + "'>");
@@ -314,12 +332,12 @@
                                     }
                                 }
                             }
-                            console.log(dir_name);
-                            console.log("3");
+                            // console.log(dir_name);
+                            // console.log("3");
                             formdata.append("upload_path", dir_name);
                             ajaxRequest.open("POST", base_url + "templatecontroller/ajaxy", false);
                             ajaxRequest.send(formdata);
-                            console.log(ajaxRequest.responseText);
+                            // console.log(ajaxRequest.responseText);
                             div = document.getElementById("div_" + file_element.name);
                             if (ajaxRequest.responseText == '1') {
                                 div.style.background = "lightgreen";

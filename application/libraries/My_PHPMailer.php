@@ -64,8 +64,8 @@ class My_PHPMailer {
 //            var_dump(count($config['smtp_to']));
             // set To address
             if (isset($config['smtp_to']) && is_array($config['smtp_to']) && count($config['smtp_to']) > 0) {
-//                $this->mail->clearAddresses();
-//                var_dump($config['smtp_to']);
+                $this->mail->clearAddresses();
+               //print_r($config['smtp_to']);
                 foreach ($config['smtp_to'] as $to_address) {
                     $email = $to_address['email'];
                     $name = '';

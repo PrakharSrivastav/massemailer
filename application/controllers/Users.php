@@ -44,13 +44,25 @@ class Users extends CI_Controller {
 				$return2 = $this -> user_list -> run_query($query);
 				$lists = 0;
 				//print_r($return2);
-				if(empty($return) || count($return) === 0){
+				if(empty($return2) || count($return2) === 0){
 					$lists = 0;
 				}
 				else {
 					$lists = $return2[0]['count'];
 				} 
-				$this->load->view("pages/users-dashboard",array("campaigns"=>$camp,"lists"=>$lists));
+				
+				$query = "select (quota_total - quota_used) as available from user where user_id = '$u'";
+				$return3 = $this -> user_list -> run_query($query);
+				$available_quota = 0;
+				//print_r($return2);
+				if(empty($return3) || count($return3) === 0){
+					$available_quota = 0;
+				}
+				else {
+					$available_quota = $return3[0]['available'];
+				} 
+				
+				$this->load->view("pages/users-dashboard",array("campaigns"=>$camp,"lists"=>$lists,"quota_available"=>$available_quota));
             } else {
                 # if user is logged-in OR the session has expired, show below message
                 $this->load->view("pages/error_message", array(

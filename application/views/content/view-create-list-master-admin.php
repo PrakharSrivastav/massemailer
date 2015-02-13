@@ -526,7 +526,7 @@
                                             <th>Location</th>
                                             <th>Mobile</th>
                                             <th>Phone</th>
-                                            <th>Status</th>
+                                            <!--<th>Status</th>-->
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -543,17 +543,19 @@
                                             <td><input type="text"  class="input-sm" name = "place_<?php echo $count ?>" value="<?php echo $subscriber[4]; ?>"></td>
                                             <td><input type="text"  class="input-sm" name = "mobile_<?php echo $count ?>" value="<?php echo $subscriber[5]; ?>"></td>
                                             <td><input type="text"  class="input-sm" name = "phone_<?php echo $count ?>" value="<?php echo $subscriber[3]; ?>"></td>
+                                            <!--
                                             <td>
-                                            	<select name="status_<?php echo $count ?>" class="input-sm">
-                                            		<option value = '1' <?php if($subscriber[7]=='1') echo "selected='selected'" ?>>Softbounce</option>
-                                            		<option value = '2' <?php if($subscriber[7]=='2') echo "selected='selected'" ?>>Spam</option>
-                                            		<option value = '3' <?php if($subscriber[7]=='3') echo "selected='selected'" ?>>Unverified</option>
-                                            		<option value = '4' <?php if($subscriber[7]=='4') echo "selected='selected'" ?>>Unsubscribed</option>
-                                            		<option value = '5' <?php if($subscriber[7]=='5') echo "selected='selected'" ?>>Verified</option>
-                                            		<option value = '6' <?php if($subscriber[7]=='6') echo "selected='selected'" ?>>Hardbounce</option>
-                                            		<option value = '7' <?php if($subscriber[7]=='7') echo "selected='selected'" ?>>Rejected</option>
-                                            	</select>
-                                            </td>
+                                                                                            <select name="status_<?php echo $count ?>" class="input-sm">
+                                                                                                <option value = '1' <?php //if($subscriber[7]=='1') echo "selected='selected'" ?>>Softbounce</option>
+                                                                                                <option value = '2' <?php //if($subscriber[7]=='2') echo "selected='selected'" ?>>Spam</option>
+                                                                                                <option value = '3' <?php //if($subscriber[7]=='3') echo "selected='selected'" ?>>Unverified</option>
+                                                                                                <option value = '4' <?php //if($subscriber[7]=='4') echo "selected='selected'" ?>>Unsubscribed</option>
+                                                                                                <option value = '5' <?php //if($subscriber[7]=='5') echo "selected='selected'" ?>>Verified</option>
+                                                                                                <option value = '6' <?php //if($subscriber[7]=='6') echo "selected='selected'" ?>>Hardbounce</option>
+                                                                                                <option value = '7' <?php //if($subscriber[7]=='7') echo "selected='selected'" ?>>Rejected</option>
+                                                                                            </select>
+                                                                                        </td>-->
+                                            
                                             </tr>  
                                             <?php $count++;
                                         }
