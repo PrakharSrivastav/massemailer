@@ -60,7 +60,7 @@
                         <div class="form-group">
                             <label  for="senddate1" class="col-sm-2 control-label">Senddate-1 *</label>
                             <div class="col-sm-10">
-                                <input disabled="true" type="datetime" class="input-sm form-control" id="senddate1" placeholder="Please provide the email subject" 
+                                <input type="datetime" class="input-sm form-control" id="senddate1" placeholder="Please provide the email subject" 
                                        required="required" name="senddate1" value="<?php  $dt = new DateTime(); echo $dt->format("Y-m-d H:I:s"); ?>">
                             </div>
                             

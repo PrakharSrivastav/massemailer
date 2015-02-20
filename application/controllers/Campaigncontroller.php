@@ -632,9 +632,10 @@ class Campaigncontroller extends CI_Controller {
     # method to run via the cron job
 
     public function run_cron_job() {
-        try {
-            $path = FCPATH . "reports/";
+    	$path = FCPATH . "reports/";
             $file_name = "cron-details.txt";
+        try {
+            
 
             # LOGGING
             if (file_exists($path . $file_name)) {
@@ -693,18 +694,19 @@ class Campaigncontroller extends CI_Controller {
 				# check if current time is > last send time
 				$curr_date = new DateTime("now");
 				$interval = $curr_date->diff($date);
-				print_r($interval);
+				//print_r($interval);
 				if ($interval->invert !== 1){
-					echo "<br />no current compaign";	
+					//echo "<br />no current compaign";	
 					throw new Exception("no current campaign", 1);
 				}
 				else{
 					
 					# take 25 subscribers from total subscribers
-					$temp = array_splice($subscribers, 0, 25);
+					$temp = array_splice($subscribers, 0, 150);
 					# print the number of subscribers
-					echo "Number of picked : ".count($temp);
-					echo "<br />Number of remaining : ".count($subscribers);
+					//echo "Number of picked : ".count($temp);
+					file_put_contents($path . $file_name, "Number of emails picked : " . count($temp) . PHP_EOL, FILE_APPEND);
+					//echo "<br />Number of remaining : ".count($subscribers);
 					
 	                # LOGGING
 	                file_put_contents($path . $file_name, "DB Time:" . $date->format("Y-m-d H:i:s") . " List-id : $list_id, Row-id : $id, Campaign-id : $campaign_id : START" . PHP_EOL, FILE_APPEND);
@@ -738,80 +740,51 @@ class Campaigncontroller extends CI_Controller {
 	                        if ($temp_cont === "" || empty($temp_cont)) {
 	                            throw new Exception("Template does not exist in the databae. Please recheck the template data and try again");
 	                        }
-	
-	//                        $template_content = str_replace("#NAME#", $to_name, $temp_cont);
-	//                        $subject = str_replace("#NAME#", $to_name, $subject);
-	//                        $this->email->clear();
-	//                        $meta = json_encode(array("campaign_id" => $campaign_id, "row_id" => $id, "subscriber_id" => trim($subscriber["subscriber_id"])));
-	//                        $config['protocol'] = 'smtp';
-	//                        $config['mailtype'] = 'html';
-	//                        $config['smtp_host'] = $smtp_details['smtp_host'];
-	//                        $config['smtp_crypto'] = $smtp_details["smtp_auth"];
-	//                        $config['smtp_user'] = $smtp_details["smtp_user"];
-	//                        $config['smtp_pass'] = $smtp_details["smtp_pass"];
-	//                        $config['smtp_port'] = $smtp_details["smtp_port"];
-	//                        $config['charset'] = 'utf-8';
-	//                        $config['wordwrap'] = false;
-	//                        $this->email->initialize($config);
-	//                        $this->email->subject($subject);
-	//                        $this->email->message($template_content);
-	//                        $this->email->to($to_email);
-	//                        $this->email->from($smtp_details["smtp_user"], $sender_name);
-	//                        $this->email->reply_to($reply_to);
-	//                        $this->email->set_header("X-MC-Subaccount", "smartcontactpreview");
-	//                        $this->email->set_header("X-MC-Metadata", $meta);
-	//                        $this->email->send();
-	
-	//                        var_dump($temp_cont);
-	//                        var_dump($template_content);
-	//                        var_dump($subject);
-	                        # if the email address is not empty
-	//                        if (!empty($to_email) && filter_var($to_email, FILTER_VALIDATE_EMAIL) !== false) {
-	//                        if (true) {
-	//                            # prepare metadata
-	//                            $meta = json_encode(array("campaign_id" => $campaign_id, "row_id" => $id, "subscriber_id" => trim($subscriber["subscriber_id"])));
-	//                            $config = array();
-	//
-	//                            # set the smtp details for the email
-	//                            $config = array(
-	//                                'is_smtp' => true,
-	//                                'is_html' => true,
-	//                                "smtp_host" => $smtp_details['smtp_host'],
-	//                                "smtp_debug" => 0,
-	//                                "smtp_auth" => TRUE,
-	//                                "smtp_port" => (int) $smtp_details["smtp_port"],
-	//                                "smtp_user" => $smtp_details["smtp_user"],
-	//                                "smtp_pass" => $smtp_details["smtp_pass"],
-	//                                "smtp_sec" => $smtp_details["smtp_auth"],
-	//                                "smtp_sub" => $subject,
-	//                                "smtp_body" => $template_content, //$template_details[0]['template_content'],
-	//                                "smtp_alt_body" => "This is test email body",
-	//                                "smtp_to" => array(array(
-	//                                        "email" => $to_email)),
-	//                                "smtp_from" => array(array(
-	//                                        "email" => $smtp_details["smtp_user"],
-	//                                        "name" => $sender_name),),
-	//                                "smtp_reply_to" => array(array(
-	//                                        "email" => $reply_to),),
-	//                                "headers" => array("X-MC-Subaccount: smartcontactpreview", "X-MC-Metadata: $meta")
-	//                            );
-	////                            print_r($config);
-	//                            # load custom PHP mailer class
-	//                            $this->load->library('My_PHPMailer', $config, 'emailer');
-	//
-	//                            # send emails
-	//                            if ($this->emailer->send_email()) {
-	//                                echo "Email Sent to $to_email <br />";
-	//                            } else {
-	//                                # LOGGING
-	//                                file_put_contents($path . $file_name, "Not able to send email for " . $subscriber["subscriber_id"] . PHP_EOL, FILE_APPEND);
-	//                            }
+							# if the email address is not empty
+	                        if (!empty($to_email) && filter_var($to_email, FILTER_VALIDATE_EMAIL) !== false) {
+	                        $template_content = str_replace("#NAME#", $to_name, $temp_cont);
+	                        $subject = str_replace("#NAME#", $to_name, $subject);
+	                        $this->email->clear();
+	                        $meta = json_encode(array("campaign_id" => $campaign_id, "row_id" => $id, "subscriber_id" => trim($subscriber["subscriber_id"])));
+	                        $config['protocol'] = 'smtp';
+	                        $config['mailtype'] = 'html';
+	                        $config['smtp_host'] = $smtp_details['smtp_host'];
+	                        $config['smtp_crypto'] = $smtp_details["smtp_auth"];
+	                        $config['smtp_user'] = $smtp_details["smtp_user"];
+	                        $config['smtp_pass'] = $smtp_details["smtp_pass"];
+	                        $config['smtp_port'] = $smtp_details["smtp_port"];
+	                        $config['charset'] = 'utf-8';
+	                        $config['wordwrap'] = false;
+	                        $this->email->initialize($config);
+	                        $this->email->subject($subject);
+	                        $this->email->message($template_content);
+	                        $this->email->to($to_email);
+	                        $this->email->from($smtp_details["smtp_user"], $sender_name);
+	                        $this->email->reply_to($reply_to);
+	                        $this->email->set_header("X-MC-Subaccount", "smartcontactpreview");
+	                		$this->email->set_header("X-MC-Metadata", $meta);
+							$this->email->set_header("X-Mailer", "smartcontact.biz");
+							$this->email->set_header("X-Originating-IP", $_SERVER['REMOTE_ADDR']);
+							$this->email->set_header("X-Organization", $sender_name);
+							$this->email->set_header("X-Copyright", $sender_name);
+							$this->email->set_header("X-Unsubscribe-email", "unsub@smartcontact.biz");
+							$this->email->set_header("X-Unsubscribe-Web", base_url()."unsubscribe");
+							$this->email->set_header("X-Report-Abuse", "Please forward a copy of this message, including all headers, to abuse@smartcontact.biz");
+	               			
+	               			# send emails
+	                            if ($this->email->send()) {
+	                                //echo "Email Sent to $to_email <br />";
+	                                //file_put_contents($path . $file_name, "Email Sent to $to_email" . PHP_EOL, FILE_APPEND);
+	                            } else {
+	                                # LOGGING
+	                                file_put_contents($path . $file_name, "Not able to send email for " . $subscriber["subscriber_id"] . PHP_EOL, FILE_APPEND);
+	                            }
 	////                            $this->emailer->clear();
-	//                        } else {
-	//                            # if email-id is blank or invalid, then store it in the file
-	//                            # LOGGING
-	//                            file_put_contents($path . $file_name, "Email not sent to : subscriber-id" . $subscriber["subscriber_id"] . " List-id : $list_id, Row-id : $id, Campaign-id : $campaign_id " . PHP_EOL, FILE_APPEND);
-	//                        }
+	                        } else {
+	                            # if email-id is blank or invalid, then store it in the file
+	                            # LOGGING
+	                            file_put_contents($path . $file_name, "Email not sent to : subscriber-id" . $subscriber["subscriber_id"] . " List-id : $list_id, Row-id : $id, Campaign-id : $campaign_id " . PHP_EOL, FILE_APPEND);
+	                        }
 	                    }
 						# add the subscribers to "sent_emails"
 						# update the field
@@ -821,16 +794,17 @@ class Campaigncontroller extends CI_Controller {
 						
 						# get the current time
 						# update the last sent time
-						echo "<br /> Temp is ";
-						print_r($temp);
-						echo "<br /> count of Temp is ";
-						print_r(count($temp));
-						echo "<br /> sent is ";
+						//echo "<br /> Temp is ";
+						//print_r($temp);
+						//echo "<br /> count of Temp is ";
+						//print_r(count($temp));
+						//echo "<br /> sent is ";
 						//print_r($sent_emails);
-						echo "<br /> updating the details to the database";
-						echo "<br /> count".count(array_merge($temp,$sent_emails));
+						//echo "<br /> updating the details to the database";
+						//echo "<br /> count".count(array_merge($temp,$sent_emails));
 						//$progress = 0;
-						if(count($temp)<=25 && count(array_merge($temp,$sent_emails)) == $email_count){
+						file_put_contents($path . $file_name, "Total emails sent= " . count($temp) . PHP_EOL, FILE_APPEND);
+						if(count($temp)<=150 && count(array_merge($temp,$sent_emails)) == $email_count){
 							$update = array(
 								"subscriber_ids" =>serialize($subscribers),
 								"sent_emails"	=>serialize(array_merge($temp,$sent_emails)),
@@ -861,7 +835,7 @@ class Campaigncontroller extends CI_Controller {
 	                }
 				}
                 # LOGGING
-                file_put_contents($path . $file_name, "DB Time:" . $date->format("Y-m-d H:i:s") . " email-id : $to_email" . PHP_EOL, FILE_APPEND);
+                file_put_contents($path . $file_name, "DB Time:" . $date->format("Y-m-d H:i:s") . "" . PHP_EOL, FILE_APPEND);
             }
             # LOGGING
             file_put_contents($path . $file_name, "Cron-job finished at : " . date("Y-m-d H:i:s") . PHP_EOL, FILE_APPEND);
@@ -874,31 +848,7 @@ class Campaigncontroller extends CI_Controller {
         }
     }
 
-    public function test2() {
-        /*
-        echo ini_get('max_execution_time');
-                ini_set('max_execution_time',3000);
-                echo ini_get('max_execution_time');
-/*
-                echo ini_get('time_limit');*/
-    /*    
-        $dt = new DateTime("now");
-                echo $dt->format("Y-m-d");
-                $y = $dt->format("Y");
-                $m = $dt->format("m");
-                                    $dt_new = new DateTime($y."-".$m."-"."1 00:00:00");
-                echo $dt_new->format("Y-m-d H:i:s");
-                $d = $dt_new->format("Y-m-d H:i:s");
-                $u = $this->session->userdata("user_id");
-                $query = "SELECT count(1) from campaign_data where send_time > '$d' and user_id = '$u'" ;
-                                    $this -> load -> model("Campaign_model", "campaign");
-                        $return = $this -> campaign -> run_query($query);
-                        print_r($return);*/
-
-        
-        //$query = "select count(1) from user_list_relation where user_id = $u or shared_with = $u";
-    }
-	
+ 	
 	public function download_campaign($camp_id){
 		try {
             # if the user is logged-in

@@ -20,7 +20,7 @@ class Responsereader extends CI_Controller {
     }
 
     public function response_webhook() {
-        $path = FCPATH . "../../reports/";
+        $path = FCPATH . "reports/";
         try {
             $event = "";
             $url = "";
@@ -66,10 +66,12 @@ class Responsereader extends CI_Controller {
                     $email = $tag["msg"]["email"];
                 }
                 if (isset($tag["msg"]["smtp_events"])) {
-                    $source_ip = $tag["msg"]["smtp_events"][0]["source_ip"];
+                	if(isset($tag["msg"]["smtp_events"][0]))
+                    	$source_ip = $tag["msg"]["smtp_events"][0]["source_ip"];
                 }
                 if (isset($tag["msg"]["smtp_events"])) {
-                    $destination_ip = $tag["msg"]["smtp_events"][0]["destination_ip"];
+                	if(isset($tag["msg"]["smtp_events"][0]))
+                    	$destination_ip = $tag["msg"]["smtp_events"][0]["destination_ip"];
                 }
                 if (isset($tag["msg"]["subaccount"])) {
                     $subaccount = $tag["msg"]["subaccount"];
@@ -126,7 +128,7 @@ class Responsereader extends CI_Controller {
     }
 
     public function handle_event($insert_data) {
-        $path = FCPATH . "../../reports/";
+        $path = FCPATH . "reports/";
         try {
             if (!empty($insert_data)) {
                 $this->load->model("Webhook_model", "webhook");
@@ -139,11 +141,12 @@ class Responsereader extends CI_Controller {
                     $this->load->model("Subscriber_model", "subscriber");
                     $campaign_update_query = array();
                     $sub_update_query = array();
-
+					//if (isset($insert_data["event"])){
                     switch (trim($insert_data["event"])) {
                         case "hard_bounce": {
                                 # where clause for campaign table
-                                $where = array("id" => trim($insert_data["row_id"]), "progress" => 3, "campaign_id" => trim($insert_data["campaign_id"]));
+                                $where = array("id" => trim($insert_data["row_id"]), //"progress" => 3, 
+                                "campaign_id" => trim($insert_data["campaign_id"]));
 
                                 # get the hard bounce value from the database
                                 $hard_bounce_id = $this->campaign->generic_campaign_select_field($where, "bounce_id");
@@ -184,7 +187,7 @@ class Responsereader extends CI_Controller {
                                 # where clause for campaign table
                                 $where = array(
                                     "id" => trim($insert_data["row_id"]),
-                                    "progress" => 3,
+                                    //"progress" => 3,
                                     "campaign_id" => trim($insert_data["campaign_id"]),
                                 );
                                 # get the spam value from the database
@@ -216,15 +219,18 @@ class Responsereader extends CI_Controller {
                                 $sub_where = array("subscriber_id" => $insert_data["subscriber_id"]);
                                 $sub_update = array("email_status" => "2", "valid" => "1");
                                 $sub_update_query = array("where" => $sub_where, "update" => $sub_update);
-                                file_put_contents($path . "logs.txt", serialize($campaign_update_query) . PHP_EOL, FILE_APPEND);
-                                file_put_contents($path . "logs.txt", serialize($sub_update_query) . PHP_EOL, FILE_APPEND);
+								if (file_exists($path . "logs.txt")){
+									file_put_contents($path . "logs.txt", serialize($campaign_update_query) . PHP_EOL, FILE_APPEND);
+                                	file_put_contents($path . "logs.txt", serialize($sub_update_query) . PHP_EOL, FILE_APPEND);
+								}
+                                
                                 break;
                             }
                         case "reject": {
                                 # where clause for campaign table
                                 $where = array(
                                     "id" => trim($insert_data["row_id"]),
-                                    "progress" => 3,
+                                    //"progress" => 3,
                                     "campaign_id" => trim($insert_data["campaign_id"]),
                                 );
                                 # get the reject value from the database
@@ -266,7 +272,7 @@ class Responsereader extends CI_Controller {
                                 # where clause for campaign table
                                 $where = array(
                                     "id" => trim($insert_data["row_id"]),
-                                    "progress" => 3,
+                                    //"progress" => 3,
                                     "campaign_id" => trim($insert_data["campaign_id"]),
                                 );
                                 # get the open value from the database
@@ -308,7 +314,7 @@ class Responsereader extends CI_Controller {
                                 # where clause for campaign table
                                 $where = array(
                                     "id" => trim($insert_data["row_id"]),
-                                    "progress" => 3,
+                                    //"progress" => 3,
                                     "campaign_id" => trim($insert_data["campaign_id"]),
                                 );
                                 # get the click value from the database
@@ -350,7 +356,7 @@ class Responsereader extends CI_Controller {
                                 # where clause for campaign table
                                 $where = array(
                                     "id" => trim($insert_data["row_id"]),
-                                    "progress" => 3,
+                                    //"progress" => 3,
                                     "campaign_id" => trim($insert_data["campaign_id"]),
                                 );
                                 # get the hard bounce value from the database
@@ -388,17 +394,25 @@ class Responsereader extends CI_Controller {
                                 }
                                 break;
                             }
+                    	//}
                     }
-                    $camp_status = $this->campaign->generic_campaign_update(array($campaign_update_query));
-                    if (file_exists($path . "logs.txt")) {
-                        file_put_contents($path . "logs.txt", "camp status : " . $camp_status . PHP_EOL, FILE_APPEND);
-                    }
+					$camp_status = "";
+					if (file_exists($path . "logs.txt"))
+						file_put_contents($path . "logs.txt",  print_r($campaign_update_query,true) . PHP_EOL, FILE_APPEND);
+					if(isset($campaign_update_query) && !empty($campaign_update_query))
+                    	$camp_status = $this->campaign->generic_campaign_update(array($campaign_update_query));
+                    //if (file_exists($path . "logs.txt")) {
+                        //file_put_contents($path . "logs.txt", "camp status : " . $camp_status . PHP_EOL, FILE_APPEND);
+                    //}
+					$sub_status ="";
+					if (file_exists($path . "logs2.txt"))
+						file_put_contents($path . "logs2.txt",  print_r($campaign_update_query,true) . PHP_EOL, FILE_APPEND);
+					if(isset($sub_update_query) && !empty($sub_update_query))
+                    	$sub_status = $this->subscriber->generic_subscriber_update(array($sub_update_query));
 
-                    $sub_status = $this->subscriber->generic_subscriber_update(array($sub_update_query));
-
-                    if (file_exists($path . "logs.txt")) {
-                        file_put_contents($path . "logs.txt", "sub status : " . $sub_status . PHP_EOL, FILE_APPEND);
-                    }
+                    //if (file_exists($path . "logs.txt")) {
+                        //file_put_contents($path . "logs.txt", "sub status : " . $sub_status . PHP_EOL, FILE_APPEND);
+                    //}
                     # update the campaign table
                     if (!$camp_status) {
                         if (file_exists($path . "error-logs.txt")) {
