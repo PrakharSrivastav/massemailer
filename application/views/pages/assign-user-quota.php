@@ -56,7 +56,8 @@
         <script src="<?php echo base_url(); ?>resources/js/jquery.scrollTo.min.js"></script>
         <script src="<?php echo base_url(); ?>resources/js/jquery.nicescroll.js"></script>
         <script src="<?php echo base_url(); ?>resources/js/scripts.js"></script>
-        <script src="<?php echo base_url(); ?>resources/js/Chart.js"></script>
-        <script src="<?php echo base_url(); ?>resources/js/jquery.validate.min.js"></script><script src="<?php echo base_url(); ?>resources/js/tinymce1/tinymce.min.js"></script>
+        <!--<script src="<?php echo base_url(); ?>resources/js/Chart.js"></script>-->
+        <script src="<?php echo base_url(); ?>resources/js/jquery.validate.min.js"></script>
+        <!--<script src="<?php echo base_url(); ?>resources/js/tinymce1/tinymce.min.js"></script>-->
     </body>
 </html>

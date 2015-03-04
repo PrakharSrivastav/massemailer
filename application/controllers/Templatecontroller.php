@@ -254,36 +254,49 @@ class Templatecontroller extends CI_Controller {
     }
 
     public function ajaxy() {
+    	// $path = FCPATH . "reports/";
+        // $file_name1 = "testing.txt";
+		// file_put_contents($path . $file_name1, "********************************************************************" . PHP_EOL, FILE_APPEND);
+                
         try {
             if ($this->session->has_userdata("is_logged_in") && $this->session->userdata('is_logged_in')) {
                 # file upload variables
                 $dir_name = "./".$this->session->userdata("dir_name") . '/uploads/template';
                 $file_name = $this->input->post("target_filename");
                 $upload_path = $this->input->post("upload_path");
-
+				// print_r($_POST);
+				// $path = FCPATH . "reports/";
+        		// $file_name1 = "testing.txt";
+				// file_put_contents($path . $file_name1, print_r($_POST). PHP_EOL, FILE_APPEND);
+                
                 if ($upload_path === "" || empty($upload_path)) {
 
                     $file_name = $this->input->post("template_image_name").$this->input->post("file_ext");
-					/*
-					echo $file_name;
-					echo "\ndirname "+$dir_name;
-					echo "\nupload_path"+$upload_path;
-					*/
+					// file_put_contents($path . $file_name1, $file_name. PHP_EOL, FILE_APPEND);
+					// echo $file_name;
+					// echo "\ndirname "+$dir_name;
+					// file_put_contents($path . $file_name1, "dirname "+$dir_name. PHP_EOL, FILE_APPEND);
+					// echo "\nupload_path"+$upload_path;
+					// file_put_contents($path . $file_name1, "upload_path"+$upload_path. PHP_EOL, FILE_APPEND);
                     $config = array(
                         "upload_path" => $dir_name,
-                        "max_size" => "2048000",
+                        "max_size" => "20480",
                         "allowed_types" => "HTM|HTML|htm|html",
                         "file_name" => $file_name,
                         "overwrite" => true
                     );
+                    // file_put_contents($path . $file_name1, "Config file is". PHP_EOL, FILE_APPEND);
+					// file_put_contents($path . $file_name1, print_r($config). PHP_EOL, FILE_APPEND);
                 } else {
                     $config = array(
                         "upload_path" => $upload_path,
-                        "max_size" => "2048000",
+                        "max_size" => "20480",
                         "allowed_types" => "rtf|txt|doc|docx|ppt|pptx|xls|xlsx|txt|zip|rar|pdf|PDF|JPG|HTM|HTML|JPEG|GIF|PNG|TIF|IMG|jpg|htm|html|jpeg|gif|png|tif|img",
                         "file_name" => $file_name,
                         "overwrite" => true
                     );
+                    // file_put_contents($path . $file_name1, "Config file is". PHP_EOL, FILE_APPEND);
+					// file_put_contents($path . $file_name1, print_r($config). PHP_EOL, FILE_APPEND);
                 }
 
 
@@ -293,21 +306,29 @@ class Templatecontroller extends CI_Controller {
                 # if the user directory is not available the create
                 if (!is_dir($dir_name)) {
                     mkdir($dir_name, 0777, true);
-                    echo "dir created";
+                    // echo "dir created";
                 }
                 $f = $this->input->post("filename");
                 if ($f === "" || is_null($f)) {
                     $f = "template_image";
                 }
 
-                //echo $f;
+                // echo $f;
+				// file_put_contents($path . $file_name1, "file to be uploaded is". PHP_EOL, FILE_APPEND);
+				// file_put_contents($path . $file_name1, $f. PHP_EOL, FILE_APPEND);
                 if ($this->upload->do_upload($f)) {
-                    if ($f === "template_image")
+                    if ($f === "template_image"){
                         echo "File/Attachment uploaded successfully";
-                    else
+						// file_put_contents($path . $file_name1, "File/Attachment uploaded successfully". PHP_EOL, FILE_APPEND);
+					}
+                    else{
                         echo 1;
+						// file_put_contents($path . $file_name1, "File name is 1". PHP_EOL, FILE_APPEND);
+					}
                 } else {
                     print_r($this->upload->display_errors());
+					// file_put_contents($path . $file_name1, "File upload errors are ". PHP_EOL, FILE_APPEND);
+					// file_put_contents($path . $file_name1, print_r($this->upload->display_errors()). PHP_EOL, FILE_APPEND);
                 }
             } else {
                 throw new Exception("You are not authorized to view this page");
@@ -315,6 +336,10 @@ class Templatecontroller extends CI_Controller {
         } catch (Exception $ex) {
             //$this->load->view("pages/error_message", array("message" => $ex->getMessage()));
             print_r($ex->getMessage());
+			// $path = FCPATH . "reports/";
+           	// $file_name1 = "testing.txt";
+			// file_put_contents($path . $file_name1, "Exception is ". PHP_EOL, FILE_APPEND);
+			// file_put_contents($path . $file_name1, print_r($ex->getMessage()). PHP_EOL, FILE_APPEND);
         }
     }
 
@@ -414,6 +439,7 @@ class Templatecontroller extends CI_Controller {
 						$str = str_replace(array("> <",">  <"),"><",$str);
                         $html = str_replace("CONTENT", $str, $html_template);
                         $html = str_replace(array("\n","\r","\t"),"",$html);
+						$html = str_replace(array("../","../../","../../"),base_url(),$html);
 						
                         $insert_data = array(
                             "template_name" => $template_name,
@@ -487,7 +513,8 @@ class Templatecontroller extends CI_Controller {
                        }
                    }
                     $str = str_replace(array("\n","\r","\t"),"",$str);
-                    $str = str_replace(array("> <"),"><",$str);
+                    $str = str_replace(array("> <",">  <",">   <",">\n<",">\r<",">\t<"),"><",$str);
+					$str = str_replace(array("../","../../","../../"),base_url(),$str);
                     $status = false;
                     $where = array("template_id" => $template_id);
                     $update = array(

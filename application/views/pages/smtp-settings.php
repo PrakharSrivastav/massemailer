@@ -9,7 +9,7 @@
         <meta name="keyword" content="Creative, Dashboard, Admin, Template, Theme, Bootstrap, Responsive, Retina, Minimal">
         <link rel="shortcut icon" href="img/favicon.png">
 
-        <title>Edit Users</title>
+        <title>Edit SMTP Settings</title>
         <?php
         $this->load->helper('html');
         echo link_tag('resources/css/bootstrap.min.css');

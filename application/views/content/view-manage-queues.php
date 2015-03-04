@@ -37,19 +37,29 @@ if ($logged_in && $user_role === "1") {
                     </header>
                  </div>   
                 <section class="panel panel-content panel-collapse collapse in" id="setup_send_campaign" >
-                    
+                    <?php if($this->session->userdata("user_role")==="3") { ?>
+                    <div class="pull-right">
+                    	<form action="<?php echo base_url().'campaigncontroller/abort_campaigns';?>" method="post">
+                    		<input type="hidden" name="abort" value="abort">
+                    		<input type="submit" class="btn btn-danger" value="Abort all queued emails">
+                    	</form>
+                    </div>
+                    <?php } ?>
+                    <br /><br />
                     	<div class="table-responsive">
                     		<table class="table table-bordered">
                     			<tr>
                     				<th>Subject</th>
                     				<th>Sender</th>
-                    				<th>Email</th>
                     				<th>List</th>
                     				<th>Total</th>
                     				<th>Sent</th>
                     				<th>Status</th>
                     				<th>Stop</th>
                     				<th>Resume</th>
+                    				<th>Email</th>
+                    				<th>Start Time</th>
+                    				<th>End Time</th>
                     			</tr>
                     			<?php  if(isset($queues) && count($queues)>0){ ?>
                     			<?php  foreach ($queues as $queue): ?>
@@ -68,43 +78,43 @@ if ($logged_in && $user_role === "1") {
 										$status = "Sent";
 									else if ($queue['progress'] === "4")
 										$status = "Paused";
+									else if ($queue['progress'] === "5")
+										$status = "Aborted";
                     			?>
 								<?php  if($queue['progress'] != '3'){ ?>
 					           	<tr style="background:#FF9966">
-					           		<td><?php echo $queue['subject']; ?></td>
-									<td><?php echo $queue['sender_name']; ?></td>
-									<td><?php echo $queue['email']; ?></td>
+					           		<td><small style="color:black;"><?php echo $queue['subject']; ?></small></td>
+									<td><small style="color:black;"><?php echo $queue['sender_name']; ?></small></td>
 									<td><?php echo $queue['list_name']; ?></td>
 									<td><?php echo $total; ?></td>
 									<td><?php echo $total_sent; ?></td>
 									<td><?php echo $status; ?></td>
 									<td class="text-center"><a href="<?php echo $pause_url."/".$queue['id']; ?>"><span class="fa fa-pause"></span></a></td>
 									<td class="text-center"><a href="<?php echo $start_url."/".$queue['id']; ?>"><span class="fa fa-play"></span></a></td>
-								</tr>
-					           	<?php  }else if($queue['progress'] == '3'){ ?>
-					           	<tr style="background:#66FF66">
-					           		<td><?php echo $queue['subject']; ?></td>
-									<td><?php echo $queue['sender_name']; ?></td>
 									<td><?php echo $queue['email']; ?></td>
-									<td><?php echo $queue['list_name']; ?></td>
-									<td><?php echo $total; ?></td>
-									<td><?php echo $total_sent; ?></td>
-									<td><?php echo $status; ?></td>
-									<td></td>
-									<td></td>
+									<td><?php echo $queue['start_time']; ?></td>
+									<td><?php echo $queue['send_time']; ?></td>
 								</tr>
-					           	<?php  } ?>	
-									
+					           	<?php  } //else if($queue['progress'] == '3'){ ?>
+					           	<!--<tr style="background:#66FF66">
+					           		<td><?php //echo $queue['subject']; ?></td>
+									<td><?php //echo $queue['sender_name']; ?></td>
+									<td><?php //echo $queue['email']; ?></td>
+									<td><?php //echo $queue['list_name']; ?></td>
+									<td><?php //echo $total; ?></td>
+									<td><?php //echo $total_sent; ?></td>
+									<td><?php //echo $status; ?></td>
+									<td></td>
+									<td></td>
+								</tr>-->
+					           	<?php  //} ?>	
 								<?php  endforeach;} ?>
                     		</table>
                     	</div>
                     </div>
-                
                 </section>
-               
             </div>
         </div>
-
         <!-- page end-->
     </section>
 </section>

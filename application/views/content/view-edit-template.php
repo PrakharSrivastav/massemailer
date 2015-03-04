@@ -21,7 +21,8 @@
         </div>
         <!-- page start-->
         <div class="col-sm-12 col-lg-12 col-md-12 col-xs-12 panel-group m-bot20" id="accordion">
-
+			<span style="color:black;" class="h5">For unsubscription, use this url:  </span> <span style="color:blue;"><?php echo base_url()."unsubscribe" ?></span>
+            <br /><br />
             <div class="panel panel-primary row">
                 <div class="panel-heading">
                     <header class="panel-title" style="background-color: #5dc3e7">

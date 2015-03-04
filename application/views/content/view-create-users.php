@@ -33,19 +33,19 @@
                                     <div class="form-group ">
                                         <label for="firstname" class="control-label col-lg-4">First name <span class="required">*</span></label>
                                         <div class="col-lg-8">
-                                            <input class=" form-control" id="firstname" name="firstname" type="text" />
+                                            <input class=" form-control" id="firstname" name="firstname" type="text" required="required"/>
                                         </div>
                                     </div>
                                     <div class="form-group ">
                                         <label for="lastname" class="control-label col-lg-4">Last name <span class="required">*</span></label>
                                         <div class="col-lg-8">
-                                            <input class=" form-control" id="lastname" name="lastname" type="text" />
+                                            <input class=" form-control" id="lastname" name="lastname" type="text" required="required"/>
                                         </div>
                                     </div>
                                     <div class="form-group ">
                                         <label for="email" class="control-label col-lg-4">Email <span class="required">*</span></label>
                                         <div class="col-lg-8">
-                                            <input class="form-control " id="email" name="email" type="email" />
+                                            <input class="form-control " id="email" name="email" type="email" required="required"/>
                                         </div>
                                     </div>
                                     <input class="form-control " id="user_role" name="user_role" type="hidden" value="3"/>
@@ -79,13 +79,13 @@
                                     <div class="form-group ">
                                         <label for="password" class="control-label col-lg-4">Password<span class="required">*</span></label>
                                         <div class="col-lg-8">
-                                            <input class="form-control " id="password" name="password" type="password" />
+                                            <input class="form-control " id="password" name="password" type="password" required="required"/>
                                         </div>
                                     </div>
                                     <div class="form-group ">
                                         <label for="confirm_password" class="control-label col-lg-4">Confirm Password<span class="required">*</span></label>
                                         <div class="col-lg-8">
-                                            <input class="form-control " id="confirm_password" name="confirm_password" type="password" />
+                                            <input class="form-control " id="confirm_password" name="confirm_password" type="password" required="required"/>
                                         </div>
                                     </div>
                                     <input class="form-control " id="s_email" name="s_email" type="hidden" value="<?php echo $smtp_details[5] ?>"/>
@@ -117,7 +117,7 @@
                                     <div class="form-group ">
                                         <label for="address" class="control-label col-lg-4">Address-1 <span class="required">*</span></label>
                                         <div class="col-lg-8">
-                                            <input class=" form-control" id="address" name="address" type="text" />
+                                            <input class=" form-control" id="address" name="address" type="text" required="required"/>
                                         </div>
                                     </div>
                                     <div class="form-group ">
@@ -129,26 +129,26 @@
                                     <div class="form-group ">
                                         <label for="city" class="control-label col-lg-4">City<span class="required">*</span></label>
                                         <div class="col-lg-8">
-                                            <input class=" form-control" id="city" name="city" type="text" />
+                                            <input class=" form-control" id="city" name="city" type="text" required="required"/>
                                         </div>
                                     </div>
                                     <div class="form-group ">
                                         <label for="state" class="control-label col-lg-4">State<span class="required">*</span></label>
                                         <div class="col-lg-8">
-                                            <input class=" form-control" id="state" name="state" type="text" />
+                                            <input class=" form-control" id="state" name="state" type="text" required="required"/>
                                         </div>
                                     </div>
 
                                     <div class="form-group ">
                                         <label for="pincode" class="control-label col-lg-4">Pincode<span class="required">*</span></label>
                                         <div class="col-lg-8">
-                                            <input class="form-control " id="pincode" name="pincode" type="text" pattern="\d*" />
+                                            <input class="form-control " id="pincode" name="pincode" type="text" pattern="\d*" required="required"/>
                                         </div>
                                     </div>
                                     <div class="form-group ">
                                         <label for="ex_date" class="control-label col-lg-4">Expiery Date<span class="required">*</span></label>
                                         <div class="col-lg-8">
-                                            <input class="form-control " id="ex_date" name="ex_date" type="date" />
+                                            <input class="form-control " id="ex_date" name="ex_date" type="date" required="required"/>
                                         </div>
                                     </div>
                                     <div class="form-group ">
@@ -274,8 +274,6 @@
                             </section>
                         </div>
                     </div>
-
-
                 </form>
             </div>
         <?php } ?>

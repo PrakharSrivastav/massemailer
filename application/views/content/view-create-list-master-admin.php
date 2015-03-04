@@ -50,7 +50,7 @@
                                                 <td><?php echo $data[2]; ?></td>
                                                 <td><?php echo $data["count"] ?></td>
                                                 <!--<td class="text-center"><i class="fa fa-share"></i></td>-->
-                                                <?php if ($data[4] != $this->session->userdata("user_id")) { ?>
+                                                <?php if ($data[4] == $this->session->userdata("user_id")) { ?>
                                                     <td class="text-center"><a href="<?php echo base_url(); ?>listcontroller/share_list_with_users/<?php echo $data[0] . "/" . $data[1]; ?>"><i class="fa fa-share"></i></a></td>
                                                     <td class="text-center"><a href="<?php echo base_url(); ?>listcontroller/show_list_in_detail/<?php echo $data[0] . "/" . $data[1]; ?>"><i class="fa fa-list-alt"></i></a></td>
                                                     <!--<td class="text-center"><a href="<?php echo base_url(); ?>listcontroller/show_list_for_update/<?php //echo $data[0] . "/" . $data[1]; ?>"><i class="fa fa-file-text-o"></i></a></td>-->
@@ -63,7 +63,7 @@
                                                     <td class="text-center"><a href="<?php echo base_url(); ?>listcontroller/show_list_for_update/<?php echo $data[0] . "/" . $data[1]."/7"; ?>"><i class="fa fa-file-text-o"></i></a></td>
                                                     <td class="text-center"><a href="<?php echo base_url(); ?>listcontroller/show_edit_list_form/<?php echo $data[0] . "/" . $data[1]; ?>"><i class="fa fa-edit"></i></a></td>
                                                     <td class="delete text-center"><a href="<?php echo base_url(); ?>listcontroller/delete_list/<?php echo $data[0] . "/" . $data[1]; ?>"><i class="fa fa-trash-o"></i></a></td>
-                                                <?php } else if ($data[4] == $this->session->userdata("user_id")) { ?>
+                                                <?php } else if ($data[4] != $this->session->userdata("user_id")) { ?>
                                                     <td class="text-center"><a href="<?php echo base_url(); ?>listcontroller/share_list_with_users/<?php echo $data[0] . "/" . $data[1]; ?>"><i class="fa fa-share"></i></a></td>
                                                     <td class="text-center"><i class="fa fa-list-alt"></i></td>
                                                     <td class="text-center"><i class="fa fa-file-text-o"></i></td>  
@@ -516,7 +516,7 @@
                         </div>
                         <div class="panel-body">
                             <?php $count = 0; if (count($list_data_for_update) > 0) { ?>
-                                <table style="width:100%" class="table-bordered">
+                                <table style="width:100%" class="table table-bordered table-condensed">
                                     <thead>
                                         <tr>
                                         	<th>ID</th>

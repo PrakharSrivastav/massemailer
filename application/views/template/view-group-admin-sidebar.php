@@ -20,7 +20,18 @@
                     <li><a class="" href="<?php echo base_url(); ?>templatecontroller/show_manage_template_page">Manage template</a></li>
                 </ul>
             </li>
+           <!--
             <li><a class="" href="<?php echo base_url(); ?>groupadmin/get_reports"><i class="fa fa-bar-chart-o"></i><span>Reports</span></a></li>
+           -->
+           <li class="sub-menu">
+	         <a href="javascript:;" class=""> <i class="fa fa-bar-chart-o"></i> <span>Available Reports</span> <span class="menu-arrow arrow_carrot-right"></span> </a>
+	         <ul class="sub">
+		         <li><a class="" href="<?php echo base_url(); ?>groupadmin/get_quota_reports">Quota reports</a></li>
+		         <li><a class="" href="<?php echo base_url(); ?>groupadmin/get_campaign_reports">Campaign reports</a></li>
+		         <li><a class="" href="<?php echo base_url(); ?>groupadmin/get_list_reports">List reports</a></li>
+		         <li><a class="" href="<?php echo base_url(); ?>groupadmin/current_report">Current reports</a></li>
+	         </ul>
+         </li>
            <li><a class="" href="<?php echo base_url(); ?>groupadmin/manage_queues"> <i class="fa fa-bars"></i> <span>Manage Queue</span> </a></li>
            <!-- <li><a class="" href=""><i class="icon_info_alt"></i><span>Notifications</span></a></li>-->
             <li class="sub-menu">

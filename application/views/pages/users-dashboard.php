@@ -51,14 +51,22 @@
             ?>    
         </section>
         <!-- container section end -->
+        
+        
+        
         <!-- javascripts -->
         <script src="<?php echo base_url(); ?>resources/js/jquery-2.1.1.min.js"></script>
         <script src="<?php echo base_url(); ?>resources/js/bootstrap.min.js"></script>
         <script src="<?php echo base_url(); ?>resources/js/script.js"></script>
+        <script src="<?php echo base_url(); ?>resources/js/jquery.validate.min.js"></script>
         <script src="<?php echo base_url(); ?>resources/js/jquery.scrollTo.min.js"></script>
         <script src="<?php echo base_url(); ?>resources/js/jquery.nicescroll.js"></script>
-        <script src="<?php echo base_url(); ?>resources/js/scripts.js"></script>
-        <script src="<?php echo base_url(); ?>resources/js/jquery.validate.min.js"></script><script src="<?php echo base_url(); ?>resources/js/tinymce1/tinymce.min.js"></script>
+        <script src="<?php echo base_url(); ?>resources/js/scripts.js"></script> 
+        <!--   
+          
+        <script src="<?php echo base_url(); ?>resources/js/tinymce1/tinymce.min.js"></script>
         <script src="<?php echo base_url(); ?>resources/js/Chart.js"></script>
+        -->
+        
     </body>
 </html>

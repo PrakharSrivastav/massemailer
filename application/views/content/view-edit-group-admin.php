@@ -26,7 +26,8 @@
 						<thead>
 							<tr>
 								<th>#</th>
-								<th>First Name</th>
+								<th>Name</th>
+								<th>Company</th>
 								<th>Email-id</th>
 								<th>Total Quota</th>
 								<th>Used Quota</th>
@@ -36,11 +37,12 @@
 							<?php $count = 1;
 							if (count($group_admin_list) > 0) {
 								foreach ($group_admin_list as $group_admin) {
-									//                                    print_r($group_admin);
+									// print_r($group_admin);                                   print_r($group_admin);
 									$active = ($group_admin['is_active'] == "1") ? "Active" : "Inactive";
 									echo "<tr>";
 									echo "<td>$count</td>";
 									echo "<td>" . $group_admin['first_name'] . "</td>";
+									echo "<td>" . $group_admin['last_name'] . "</td>";
 									echo "<td><a href='" . base_url() . "masteradmin/edit_group_admin/" . $group_admin['email'] . "/login'>" . $group_admin['email'] . "</a></td>";
 									echo "<td>" . $group_admin['quota_total'] . "</td>";
 									echo "<td>" . $group_admin['quota_used'] . "</td>";
@@ -66,7 +68,8 @@
 						<thead>
 							<tr>
 								<th>#</th>
-								<th>FirstName</th>
+								<th>Name</th>
+								<th>Company</th>
 								<th>Email</th>
 								<th>Host</th>
 								<th>Port</th>
@@ -77,9 +80,11 @@
 							<?php $count = 1;
 							if (count($group_admin_list) > 0) {
 								foreach ($group_admin_list as $group_admin) {
+									// print_r($group_admin);
 									echo "<tr>";
 									echo "<td>$count</td>";
 									echo "<td>" . $group_admin['first_name'] . "</td>";
+									echo "<td>" . $group_admin['last_name'] . "</td>";
 									echo "<td><a href='" . base_url() . "masteradmin/edit_group_admin/" . $group_admin['email'] . "/smtp'>" . $group_admin['email'] . "</a></td>";
 									echo "<td>" . $group_admin['smtp_host'] . "</td>";
 									echo "<td>" . $group_admin['smtp_port'] . "</td>";
@@ -103,7 +108,8 @@
 						<thead>
 							<tr>
 								<th>#</th>
-								<th>First Name</th>
+								<th>Name</th>
+								<th>Company</th>
 								<th>Email-id</th>
 								<th>Address 1</th>
 								<th>City</th>
@@ -115,9 +121,11 @@
 							<?php $count = 1;
 							if (count($group_admin_list) > 0) {
 								foreach ($group_admin_list as $group_admin) {
+									// print_r($group_admin);
 									echo "<tr>";
 									echo "<td>$count</td>";
 									echo "<td>" . $group_admin['first_name'] . "</td>";
+									echo "<td>" . $group_admin['last_name'] . "</td>";
 									echo "<td><a href='" . base_url() . "masteradmin/edit_group_admin/" . $group_admin['email'] . "/contact'>" . $group_admin['email'] . "</a></td>";
 									echo "<td>" . $group_admin['address_line_1'] . "</td>";
 									echo "<td>" . $group_admin['city'] . "</td>";
@@ -153,13 +161,13 @@
 							</header>
 							<div class="panel-body">
 								<div class="form-group ">
-									<label for="firstname" class="control-label col-lg-3">First name <span class="required">*</span></label>
+									<label for="firstname" class="control-label col-lg-3">Name <span class="required">*</span></label>
 									<div class="col-lg-9">
 										<input class=" form-control" id="firstname" name="firstname" type="text" value="<?php echo $get_all_user_details[0]; ?>"/>
 									</div>
 								</div>
 								<div class="form-group ">
-									<label for="lastname" class="control-label col-lg-3">Last name <span class="required">*</span></label>
+									<label for="lastname" class="control-label col-lg-3">Company<span class="required">*</span></label>
 									<div class="col-lg-9">
 										<input class=" form-control" id="lastname" name="lastname" type="text" value="<?php echo $get_all_user_details[1]; ?>"/>
 									</div>
@@ -377,10 +385,10 @@
 								</div>
 								<div class="form-group">
 									<div class=" col-lg-12">
-										<button class="btn btn-block input-lg btn-space" type="submit">
+										<button class="btn btn-block input-sm btn-space" type="submit">
 											Save
 										</button>
-										<button class="btn btn-block input-lg btn-space" type="reset">
+										<button class="btn btn-block input-sm btn-space" type="reset">
 											Reset
 										</button>
 									</div>

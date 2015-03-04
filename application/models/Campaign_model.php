@@ -15,7 +15,47 @@ class Campaign_model extends CI_Model {
 	 * $data = array(array($where_array), array($where_array),......)
 	 * $where_array 	-- array with the where clause
 	 */
-
+	public function abort_campaigns($user_id){
+		try {
+			if (is_null($user_id) || $user_id === "") {
+				throw new Exception("Campaign_model::abort_campaigns::invalid user_id provided for update", 1);
+			} else {
+				# variable for status of deletion process
+				$status = false;
+				$progress = array('1', '2', '4');
+				$data = array("progress"=>"5");
+				
+				$this->db->where(array("user_id"=>$user_id));
+				$this->db->where_in('progress', $progress);
+				$status = $this->db->update('campaign_data', $data);
+				# return status
+				return $status;
+			}
+		} catch (Exception $e) {
+			throw $e;
+		}
+	}
+	public function stop_campaigns($row_id){
+		try {
+			if (is_null($row_id) || $row_id === "") {
+				throw new Exception("Campaign_model::abort_campaigns::invalid row_id provided for update", 1);
+			} else {
+				# variable for status of deletion process
+				$status = false;
+				$progress = array('1', '2');
+				$data = array("progress"=>"4");
+				
+				$this->db->where(array("id"=>$row_id));
+				$this->db->where_in('progress', $progress);
+				$status = $this->db->update('campaign_data', $data);
+				# return status
+				return $status;
+			}
+		} catch (Exception $e) {
+			throw $e;
+		}
+	}
+	
 	public function generic_campaign_delete($data) {
 		try {
 			if (!is_array($data) || empty($data) || count($data) === 0) {

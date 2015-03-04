@@ -471,7 +471,7 @@
                         </div>
                         <div class="panel-body">
                             <?php $count = 0; if (count($list_data_for_update) > 0) { ?>
-                                <table style="width:100%" class="table-bordered">
+                                <table style="width:100%" class="table table-bordered table-condensed">
                                     <thead>
                                         <tr>
                                         	<th>ID</th>

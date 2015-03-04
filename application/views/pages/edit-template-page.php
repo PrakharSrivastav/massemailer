@@ -63,7 +63,7 @@
         <script src="<?php echo base_url(); ?>resources/js/jquery.scrollTo.min.js"></script>
         <script src="<?php echo base_url(); ?>resources/js/jquery.nicescroll.js"></script>
         <script src="<?php echo base_url(); ?>resources/js/scripts.js"></script>
-        <script src="<?php echo base_url(); ?>resources/js/Chart.js"></script>
+        <!--<script src="<?php echo base_url(); ?>resources/js/Chart.js"></script>-->
         <script src="<?php echo base_url(); ?>resources/js/jquery.validate.min.js"></script>
         <script src="<?php echo base_url(); ?>resources/js/tinymce1/tinymce.min.js"></script>
         <script src="<?php echo base_url(); ?>resources/js/template.js"></script>
@@ -316,22 +316,10 @@
                             formdata.append("filename", "userfile");
                             formdata.append("target_filename", file_element.name);
                             var ajaxRequest;
-                            try {
-                                ajaxRequest = new XMLHttpRequest();
-                            }
-                            catch (e) {
-                                try {
-                                    ajaxRequest = new ActiveXObject("Msxml2.XMLHTTP");
-                                }
-                                catch (e) {
-                                    try {
-                                        ajaxRequest = new ActiveXObject("Microsoft.XMLHTTP");
-                                    }
-                                    catch (e) {
-                                        alert("Problem with the browser");
-                                    }
-                                }
-                            }
+                            try {ajaxRequest = new XMLHttpRequest();}
+                            catch (e) {try {ajaxRequest = new ActiveXObject("Msxml2.XMLHTTP");}
+                            catch (e) {try { ajaxRequest = new ActiveXObject("Microsoft.XMLHTTP");}
+                            catch (e) {alert("Problem with the browser");}}}
                             // console.log(dir_name);
                             // console.log("3");
                             formdata.append("upload_path", dir_name);

@@ -30,7 +30,14 @@ class Campaigncontroller extends CI_Controller {
                 # get the page data details
                 $page_data = $this->user->get_my_lists_data($this->session->userdata("user_id"));
                 $page_data = array_merge($page_data, $this->user->get_lists_shared_with_me($this->session->userdata("user_id")));
-
+				$new_arr = array();
+                foreach ($page_data as $data) {
+                    $count = $this->db->select("count(1) as count")->where(array("list_id" => $data[0]))->get("list_subscriber_relation");
+                    foreach ($count->result_array() as $row)
+                        $new_arr[] = array_merge($data, $row);
+                }
+				//print_r($new_arr);
+				
                 # get the default sender email id for the form
                 # this will be set as the reply to address.
                 $reply_to = $this->user->get_user_field($this->session->userdata("email"), "sender_email");
@@ -38,7 +45,7 @@ class Campaigncontroller extends CI_Controller {
                 # load the crete campaign view
                 $this->load->view("pages/create-campaign-page", array(
                     "template_data" => $template_data,
-                    "list_data" => $page_data,
+                    "list_data" => $new_arr,
                     "reply_to" => $reply_to
                 ));
             } else {
@@ -70,11 +77,12 @@ class Campaigncontroller extends CI_Controller {
                 $campaign_sub = $this->input->post("campaign_subject");
 				$send_time = $this->input->post("senddate1");
 				//print_r($send_time);
+                
                 # test the input variables: check validations below
-                # template name should not be null or blank
-                # list name should be an array and sould have atleast an element
-                # campaign subject should not be null or blank
-                # test and throw exception in case any of the fields are blank
+                # 	template name should not be null or blank
+                # 	list name should be an array and sould have atleast an element
+                # 	campaign subject should not be null or blank
+                # 	test and throw exception in case any of the fields are blank
                 if (($template_name === "" || is_null($template_name)) ||
                         (!is_array($list_name) || count($list_name) === 0) ||
                         (($campaign_sub === "" || is_null($campaign_sub)))) {
@@ -163,7 +171,7 @@ class Campaigncontroller extends CI_Controller {
                                 
                                 # get the batch size = (number of subscribers/hourly quota) + 1
                                 # +1 is done to accomodate the remainder
-                               $batch_size = 1 + ($count / $my_quota);
+                               	$batch_size = 1 + ($count / $my_quota);
                                 // $batch_size = 1 + ($count / 200);
                                 
                                 # temp variable
@@ -202,6 +210,7 @@ class Campaigncontroller extends CI_Controller {
                                 $smtp_details ["smtp_port"] = $all_details[0]['smtp_port'];
                                 $smtp_details ["smtp_auth"] = $all_details[0]['smtp_auth'];
                                 $smtp_details ["smtp_host"] = $all_details[0]['smtp_host'];
+								$smtp_details ["smtp_saccount"] = $all_details[0]['smtp_saccount'];
                                 $smtp_details ["sender_name"] = $campaign_from;
                             }
 
@@ -240,36 +249,102 @@ class Campaigncontroller extends CI_Controller {
                                 # create the metadata
                                 $meta_data = uniqid() . uniqid();
 
-                                # added a flag to not increment the date for the first time
-                                # date should be changed for the next lists getting queued
-                                if ($inc_date_flag) {
-                                    $next_send_to = $next_send_to->add(new DateInterval("P0Y0M0DT1H0M0S"));
-                                }
+                                
+								
+								# take the current time stamp
+								# check the starttime of the next job in progress
+								# check the time it will take to complete
+								
+								$sql = "SELECT`id`, min( `send_time` ) as t , subscriber_ids as sub"
+									    . " FROM `campaign_data` "
+									    . "WHERE progress in ('1','2') "
+									    . "AND user_id = '".$this->session->userdata("user_id")."'";
 
-                                # prepare the insert data
-                                $insert_data = array(
-                                    "user_id" => $this->session->userdata("user_id"),
-                                    "list_id" => $batch["name"],
-                                    "send_time" => $next_send_to->format("Y-m-d H:i:s"),
-                                    "bounce_id" => "",
-                                    "spam_id" => "",
-                                    "soft_bounce_id" => "",
-                                    "click_id" => "",
-                                    "reject_id" => "",
-                                    "open_id" => "",
-                                    "smtp_details" => serialize($smtp_details),
-                                    "subscriber_ids" => serialize($batch["data"]),
-                                    "progress" => 1,
-                                    "metadata" => $meta_data,
-                                    "template_id" => $template_id,
-                                    "subject" => $campaign_sub,
-                                    "sender_name" => $campaign_from,
-                                    "reply_to" => $reply_to,
-                                    "campaign_id" => $campaign_id,
-                                    "insert_date" => date("Y-m-d H:i:s"),
-                                    "quota"=>count($batch["data"]),
-                                    "send_date1" =>$send_time
-                                );
+								$this -> load -> model("Campaign_model", "campaign");
+
+								$r = $this -> campaign -> run_query($sql);
+								//print_r($r);
+				
+								if($subscriber_count <= $my_quota){
+									
+									if($r[0]["t"] === ""){
+										$d = new DateTime("now");
+										$next_send_to = $d->format("Y-m-d H:i:s");
+									}
+									else if ($r[0]["t"] !== ""){
+										$t = new DateTime($r[0]['t']);
+										$sub = unserialize($r[0]["sub"]);
+										$minutes = (int)((count($sub)/$my_quota)+1)*2;
+										//echo $minutes;
+										if($minutes > 9){
+											$next_send_to = $next_send_to->add(new DateInterval("P0Y0M0DT1H0M0S"));
+										}else{
+											$next_send_to = $t->add(new DateInterval("P0Y0M0DT1H".($minutes+1)."M0S"));	
+										}
+										
+									}
+									
+									# prepare the insert data
+                                	$insert_data = array(
+	                                    "user_id" => $this->session->userdata("user_id"),
+	                                    "list_id" => $batch["name"],
+	                                    "send_time" => $next_send_to->format("Y-m-d H:i:s"),
+	                                    "start_time" => $next_send_to->format("Y-m-d H:i:s"),
+	                                    "bounce_id" => "",
+	                                    "spam_id" => "",
+	                                    "soft_bounce_id" => "",
+	                                    "click_id" => "",
+	                                    "reject_id" => "",
+	                                    "open_id" => "",
+	                                    "smtp_details" => serialize($smtp_details),
+	                                    "subscriber_ids" => serialize($batch["data"]),
+	                                    "progress" => 1,
+	                                    "metadata" => $meta_data,
+	                                    "template_id" => $template_id,
+	                                    "subject" => $campaign_sub,
+	                                    "sender_name" => $campaign_from,
+	                                    "reply_to" => $reply_to,
+	                                    "campaign_id" => $campaign_id,
+	                                    "insert_date" => date("Y-m-d H:i:s"),
+	                                    "quota"=>count($batch["data"]),
+	                                    "send_date1" =>$send_time
+                                	);
+								}
+								else{
+									# added a flag to not increment the date for the first time
+	                                # date should be changed for the next lists getting queued
+	                                if ($inc_date_flag) {
+	                                    $next_send_to = $next_send_to->add(new DateInterval("P0Y0M0DT1H0M0S"));
+	                                }
+									
+									# prepare the insert data
+                                	$insert_data = array(
+	                                    "user_id" => $this->session->userdata("user_id"),
+	                                    "list_id" => $batch["name"],
+	                                    "send_time" => $next_send_to->format("Y-m-d H:i:s"),
+	                                    "start_time" => $next_send_to->format("Y-m-d H:i:s"),
+	                                    "bounce_id" => "",
+	                                    "spam_id" => "",
+	                                    "soft_bounce_id" => "",
+	                                    "click_id" => "",
+	                                    "reject_id" => "",
+	                                    "open_id" => "",
+	                                    "smtp_details" => serialize($smtp_details),
+	                                    "subscriber_ids" => serialize($batch["data"]),
+	                                    "progress" => 1,
+	                                    "metadata" => $meta_data,
+	                                    "template_id" => $template_id,
+	                                    "subject" => $campaign_sub,
+	                                    "sender_name" => $campaign_from,
+	                                    "reply_to" => $reply_to,
+	                                    "campaign_id" => $campaign_id,
+	                                    "insert_date" => date("Y-m-d H:i:s"),
+	                                    "quota"=>count($batch["data"]),
+	                                    "send_date1" =>$send_time
+                                	);
+								}
+								
+                                
                                 $db_insert_data [] = $insert_data;
                                 $inc_date_flag = true;
                             }
@@ -296,10 +371,7 @@ class Campaigncontroller extends CI_Controller {
                                         # increment the send count by 1 for this list
                                         if ($this->list->generic_list_update(array($db_array))) {
                                             	
-											
-												
                                             # update the current timestamp in the user table
-                                            
                                             $update = array(
                                                 "send_time" => $next_send_to->format("Y-m-d H:i:s"),//$date_today->format("Y-m-d H:i:s"),
                                                 // "send_status" => '0'
@@ -318,7 +390,7 @@ class Campaigncontroller extends CI_Controller {
                                                 )
                                             );
 
-                                            # increament the next send time on the user table for current user
+                                            # increment the next send time on the user table for current user
                                             if ($this->user->generic_update_user_data($update_arr)) {
                                                 # load template model
 	                                            $this->load->model("Template_model", "template");
@@ -332,11 +404,30 @@ class Campaigncontroller extends CI_Controller {
 	                                            # get the campaign page data for this user
 	                                            $page_data = $this->user->get_my_lists_data($this->session->userdata("user_id"));
 	                                            $page_data = array_merge($page_data, $this->user->get_lists_shared_with_me($this->session->userdata("user_id")));
-	
-	                                            # load that campaign page
+												$new_arr = array();
+								                foreach ($page_data as $data) {
+								                    $count = $this->db->select("count(1) as count")->where(array("list_id" => $data[0]))->get("list_subscriber_relation");
+								                    foreach ($count->result_array() as $row)
+								                        $new_arr[] = array_merge($data, $row);
+								                }
+												//
+												$this -> load -> model("Event_model", "event");
+												$data = array(
+													"e_name" => "EMAILS_QUEUED", 
+													"e_amount" => $subscriber_count, 
+													"e_details" => "USER", 
+													"e_user_to" => $this -> session -> userdata("user_id"), 
+													"e_user_by" => $this -> session -> userdata("user_id"), 
+													"e_info" => "Campaign Emails queued for sending", 
+													"e_date" => date("Y-m-d H:i:s")
+												);
+							
+												$this -> event -> insert(array($data));
+												
+												# load that campaign page
 	                                            $this->load->view("pages/create-campaign-page", array(
 	                                                "template_data" => $template_data,
-	                                                "list_data" => $page_data,
+	                                                "list_data" => $new_arr,
 	                                                "reply_to" => $reply_to,
 	                                                "status" => "Your emails are queued. <br />They would be sent across as per the hourly quota assigned to you.")
 	                                            );
@@ -633,10 +724,9 @@ class Campaigncontroller extends CI_Controller {
 
     public function run_cron_job() {
     	$path = FCPATH . "reports/";
-            $file_name = "cron-details.txt";
+        $file_name = "cron-details.txt";
         try {
             
-
             # LOGGING
             if (file_exists($path . $file_name)) {
                 file_put_contents($path . $file_name, "********************************************************************" . PHP_EOL, FILE_APPEND);
@@ -738,40 +828,52 @@ class Campaigncontroller extends CI_Controller {
 	                        );
 	
 	                        if ($temp_cont === "" || empty($temp_cont)) {
-	                            throw new Exception("Template does not exist in the databae. Please recheck the template data and try again");
+	                            throw new Exception("Template does not exist in the database. Please recheck the template data and try again");
 	                        }
+							
+							
+							//file_put_contents($path . $file_name, print_r($smtp_details,TRUE), FILE_APPEND);
+	
 							# if the email address is not empty
 	                        if (!empty($to_email) && filter_var($to_email, FILTER_VALIDATE_EMAIL) !== false) {
-	                        $template_content = str_replace("#NAME#", $to_name, $temp_cont);
-	                        $subject = str_replace("#NAME#", $to_name, $subject);
-	                        $this->email->clear();
-	                        $meta = json_encode(array("campaign_id" => $campaign_id, "row_id" => $id, "subscriber_id" => trim($subscriber["subscriber_id"])));
-	                        $config['protocol'] = 'smtp';
-	                        $config['mailtype'] = 'html';
-	                        $config['smtp_host'] = $smtp_details['smtp_host'];
-	                        $config['smtp_crypto'] = $smtp_details["smtp_auth"];
-	                        $config['smtp_user'] = $smtp_details["smtp_user"];
-	                        $config['smtp_pass'] = $smtp_details["smtp_pass"];
-	                        $config['smtp_port'] = $smtp_details["smtp_port"];
-	                        $config['charset'] = 'utf-8';
-	                        $config['wordwrap'] = false;
-	                        $this->email->initialize($config);
-	                        $this->email->subject($subject);
-	                        $this->email->message($template_content);
-	                        $this->email->to($to_email);
-	                        $this->email->from($smtp_details["smtp_user"], $sender_name);
-	                        $this->email->reply_to($reply_to);
-	                        $this->email->set_header("X-MC-Subaccount", "smartcontactpreview");
-	                		$this->email->set_header("X-MC-Metadata", $meta);
-							$this->email->set_header("X-Mailer", "smartcontact.biz");
-							$this->email->set_header("X-Originating-IP", $_SERVER['REMOTE_ADDR']);
-							$this->email->set_header("X-Organization", $sender_name);
-							$this->email->set_header("X-Copyright", $sender_name);
-							$this->email->set_header("X-Unsubscribe-email", "unsub@smartcontact.biz");
-							$this->email->set_header("X-Unsubscribe-Web", base_url()."unsubscribe");
-							$this->email->set_header("X-Report-Abuse", "Please forward a copy of this message, including all headers, to abuse@smartcontact.biz");
+		                        	
+		                        $template_content = str_replace("#NAME#", $to_name, $temp_cont);
+		                        $subject = str_replace("#NAME#", $to_name, $subject);
+		                        $this->email->clear();
+		                        $meta = json_encode(array(
+		                        	"campaign_id" => $campaign_id,
+		                        	"row_id" => $id,
+		                        	"subscriber_id" => trim($subscriber["subscriber_id"]))
+								);
+		                        
+		                        $config['protocol'] = 'smtp';
+		                        $config['mailtype'] = 'html';
+		                        $config['smtp_host'] = $smtp_details['smtp_host'];
+		                        $config['smtp_crypto'] = $smtp_details["smtp_auth"];
+		                        $config['smtp_user'] = $smtp_details["smtp_user"];
+		                        $config['smtp_pass'] = $smtp_details["smtp_pass"];
+		                        $config['smtp_port'] = $smtp_details["smtp_port"];
+		                        $config['charset'] = 'utf-8';
+		                        $config['wordwrap'] = false;
+		                        
+		                        $this->email->initialize($config);
+		                        $this->email->subject($subject);
+		                        $this->email->message($template_content);
+		                        $this->email->to($to_email);
+		                        $this->email->from($smtp_details["smtp_user"], $sender_name);
+		                        $this->email->reply_to($reply_to);
+		                        
+		                        $this->email->set_header("X-MC-Subaccount", $smtp_details["smtp_saccount"]);
+		                		$this->email->set_header("X-MC-Metadata", $meta);
+								$this->email->set_header("X-Mailer", "smartcontact.biz");
+								$this->email->set_header("X-Originating-IP", $_SERVER['REMOTE_ADDR']);
+								$this->email->set_header("X-Organization", $sender_name);
+								$this->email->set_header("X-Copyright", $sender_name);
+								$this->email->set_header("X-Unsubscribe-email", "unsub@smartcontact.biz");
+								$this->email->set_header("X-Unsubscribe-Web", base_url()."unsubscribe");
+								$this->email->set_header("X-Report-Abuse", "Please forward a copy of this message, including all headers, to abuse@smartcontact.biz");
 	               			
-	               			# send emails
+	               				# send emails
 	                            if ($this->email->send()) {
 	                                //echo "Email Sent to $to_email <br />";
 	                                //file_put_contents($path . $file_name, "Email Sent to $to_email" . PHP_EOL, FILE_APPEND);
@@ -870,4 +972,90 @@ class Campaigncontroller extends CI_Controller {
             );
         }
 	}
-}
+
+	public function abort_campaigns(){
+		try{
+			if ($this->session->has_userdata("is_logged_in") &&  $this->session->userdata('is_logged_in')  ){
+                $abort = false;
+                if($this->input->post("abort") === "abort"){
+                	$abort = true;
+                } 
+				if($abort){
+					$this->load->model("Campaign_model","campaign");
+					$this->load->model("User_model","user");
+					
+					
+					# get the quota in the campaign table
+					$sql = "select * from campaign_data where progress in ('1','2','4') and user_id = '".$this->session->userdata("user_id")."'";
+					$return = $this -> campaign -> run_query($sql);
+					
+					$count_quota = 0;
+					//var_dump($return);
+					if(!empty($return) && count($return)>0){
+						foreach ($return as $subscriber){
+							$count_quota += count(unserialize($subscriber["subscriber_ids"]));
+						}
+						
+						if($count_quota > 0){
+							# get the user_quota
+							$where = array(
+								"user_id" => $this->session->userdata("user_id"),
+								"email" => $this->session->userdata("email"),
+								"user_role" => $this->session->userdata("user_role")
+							);
+							$user_details = $this->user->generic_user_select($where);
+							// print_r($user_details);
+							$quota_used = (int)$user_details[0]["quota_used"];
+							$quota_used = $quota_used - $count_quota;
+							
+							$update = array(
+								"send_time"=>"0000-00-00 00-00-00",
+								"quota_used" => $quota_used
+							);
+							
+							$update_arr = array(array("where_array" => $where,"update_array" => $update));
+							
+							# add quota to the user table
+							$this->user->generic_update_user_data($update_arr);
+							
+							# add quota entry to event table
+							$this -> load -> model("Event_model", "event");
+							$data = array(
+								"e_name" => "ADD_QUOTA", 
+								"e_amount" => $quota_used, 
+								"e_details" => "USER", 
+								"e_user_to" => $this -> session -> userdata("user_id"), 
+								"e_user_by" => $this -> session -> userdata("user_id"), 
+								"e_info" => "Campaigns aborted by user. Quota added back", 
+								"e_date" => date("Y-m-d H:i:s")
+							);
+							$this -> event -> insert(array($data));				
+						}
+					}
+					$r = $this -> campaign -> abort_campaigns($this->session->userdata("user_id"));
+					if($r){
+						if($this->session->userdata("user_role") === "3")
+							redirect("users/manage_queues");
+						else if($this->session->userdata("user_role") === "2")
+							redirect("groupadmin/manage_queues");
+						else if ($this->session->userdata("user_role") === "1")
+							redirect("masteradmin/manage_queues");
+					}
+					else{
+						throw new Exception("Could not abort the  campaigns. Please try again or check with the Administrator.");
+					}
+				}   	
+            }
+			else{
+				throw new Exception("You are not authorized to view this page OR your session has expired.");
+			}
+		}
+		catch (Exception $ex) {
+            # in case of exception, show the exception on the screen
+            $this->load->view("pages/error_message", array(
+                "message" => $ex->getMessage())
+            );
+        }
+	}
+	
+	}

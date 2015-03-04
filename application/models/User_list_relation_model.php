@@ -13,7 +13,9 @@ class User_list_relation_model extends CI_Model {
 
     public function get_my_current_list_count($user_id) {
         try {
-            if ($user_id === "" || empty($user_id) || strlen($user_id) === 0) {
+        	// var_dump($user_id);
+			// print_r($this->session->userdata());
+            if ($user_id === "" || is_null($user_id)|| strlen($user_id) === 0) {
                 throw new Exception("List_model::get_my_current_list_count::invalid user-id provided", 1);
             } else {
                 $this->db->where(array("user_id" => $user_id));

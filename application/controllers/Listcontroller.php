@@ -25,6 +25,7 @@ class Listcontroller extends CI_Controller {
                     foreach ($count->result_array() as $row)
                         $new_arr[] = array_merge($data, $row);
                 }
+				//print_r($new_arr);
                 $this->load->view("pages/create-list-form", array("page_data" => $new_arr));
             } else {
                 throw new Exception("You are not authorized to view this page OR Your session has expired");
@@ -714,6 +715,7 @@ class Listcontroller extends CI_Controller {
                         foreach ($count->result_array() as $row)
                             $new_arr[] = array_merge($data, $row);
                     }
+					//print_r($new_arr);
                     $this->load->view("pages/create-list-form", array(
                         "page_data" => $new_arr,
                         "show_edit_list_form" => true,

@@ -1,6 +1,6 @@
 <!--sidebar start-->
 <aside>
-    <div id="sidebar"  class="nav-collapse ">
+    <div id="sidebar"  class="nav-collapse">
         <!-- sidebar menu start-->
         <ul class="sidebar-menu">
             <li class=""><a class="" href="<?php echo base_url(); ?>users/users_dashboard"><i class="icon_house_alt"></i><span>User Dashboard</span></a></li>
@@ -14,7 +14,17 @@
                 </ul>
             </li>
             <li><a class="" href="<?php echo base_url(); ?>campaigncontroller/show_create_campaign_page"><i class="fa fa-send"></i>My Campaigns</a></li>
-            <li><a class="" href="<?php echo base_url(); ?>users/get_reports"> <i class="icon_piechart"></i> <span>Reports</span> </a></li>
+            <!-- <li><a class="" href="<?php //echo base_url(); ?>users/get_reports"> <i class="icon_piechart"></i> <span>Reports</span> </a></li>
+             -->
+         <li class="sub-menu">
+	         <a href="javascript:;" class=""> <i class="fa fa-bar-chart-o"></i> <span>Available Reports</span> <span class="menu-arrow arrow_carrot-right"></span> </a>
+	         <ul class="sub">
+		         <li><a class="" href="<?php echo base_url(); ?>users/get_quota_reports">Quota reports</a></li>
+		         <li><a class="" href="<?php echo base_url(); ?>users/get_campaign_reports">Campaign reports</a></li>
+		         <li><a class="" href="<?php echo base_url(); ?>users/get_list_reports">List reports</a></li>
+		         <li><a class="" href="<?php echo base_url(); ?>users/current_report">Current reports</a></li>
+	         </ul>
+         </li>
             <li><a class="" href="<?php echo base_url(); ?>users/manage_queues"> <i class="fa fa-bars"></i> <span>Manage Queue</span> </a></li>
             <li class="sub-menu">
                 <a href="javascript:;" class=""><i class="fa fa-gear"></i><span>Manage Profile</span><span class="menu-arrow arrow_carrot-right"></span></a>

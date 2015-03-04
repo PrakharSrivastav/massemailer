@@ -63,7 +63,7 @@
         <script src="<?php echo base_url(); ?>resources/js/jquery.scrollTo.min.js"></script>
         <script src="<?php echo base_url(); ?>resources/js/jquery.nicescroll.js"></script>
         <script src="<?php echo base_url(); ?>resources/js/scripts.js"></script>
-        <script src="<?php echo base_url(); ?>resources/js/Chart.js"></script>
+        <!--<script src="<?php echo base_url(); ?>resources/js/Chart.js"></script>-->
         <script src="<?php echo base_url(); ?>resources/js/jquery.validate.min.js"></script>
         <script src="<?php echo base_url(); ?>resources/js/tinymce1/tinymce.min.js"></script>
         <script src="<?php echo base_url(); ?>resources/js/template.js"></script>
@@ -123,7 +123,7 @@
                 $('#template_content').html("<br /><br /><br /><br /><br /><br /><br /><br /><br /><section>" +
                         "<strong>Unsubscribe Newsletter:</strong>" +
                         "Smartcontact.biz has send you this email onbehalf of ##sender name## because you have agreed to receive offers from ##sender name##." +
-                        " If you wish to Unsubscribe. please use this link to <a href=''>##Unsubscribe##</a> from this service.In case any queries please write info@smartcontact.biz <br /><br />" +
+                        " If you wish to Unsubscribe. please use this link to <a href='<?php echo base_url()."unsubscribe" ?>'>Unsubscribe</a> from this service.In case any queries please write info@smartcontact.biz <br /><br />" +
                         "<strong>Disclaimer:</strong> This internet advertisement / campaign / e mailer/ promotional marketing activity is wholly / completely managed and sponsored by the advertising / promotional company and/or its media partners / Agencies." +
                         "<a href=''>smartcontact.biz</a> as a publisher of this advertisement/ campaign /e-mailer / promotion and/or its digital agency does not validate the accuracy / genuineness of the contents of this internet advertisement / campaign / e mailer/ promotional marketing activity and are in no way responsible and liable for any inaccuracy, errors, mistakes and misrepresentation thereof in any manner whatsoever." +
                         " All communication and queries claims regarding the subject matter may please be directed to the advertising / promotional company and/or its media partners / Agencies with no recourse and liability to the publisher of this advertisement / campaign / e mailer/ promotional marketing activity and / or its digital agency." +
@@ -141,22 +141,10 @@
                     $("#file_inputs_via_js").empty();
 
                     var ajaxRequest;
-                    try {
-                        ajaxRequest = new XMLHttpRequest();
-                    }
-                    catch (e) {
-                        try {
-                            ajaxRequest = new ActiveXObject("Msxml2.XMLHTTP");
-                        }
-                        catch (e) {
-                            try {
-                                ajaxRequest = new ActiveXObject("Microsoft.XMLHTTP");
-                            }
-                            catch (e) {
-                                alert("Problem with the browser");
-                            }
-                        }
-                    }
+                    try {ajaxRequest = new XMLHttpRequest();}
+                    catch (e){try{ajaxRequest = new ActiveXObject("Msxml2.XMLHTTP");}
+                    catch (e) {try{ajaxRequest = new ActiveXObject("Microsoft.XMLHTTP");}
+                    catch (e) {alert("Problem with the browser");}}}
 
 
                     ajaxRequest.open("POST", base_url + "templatecontroller/create_dir_for_upload", false);
@@ -165,8 +153,8 @@
                     if (ajaxRequest.responseText !== '0') {
 
                         dir_name = ajaxRequest.responseText;
-//                        console.log(dir_name);
-//                        console.log("one");
+                        // console.log(dir_name);
+                        // console.log("one");
 
                         $("#file_inputs_via_js").empty();
 //                        $("#template_name").attr("disabled", false);
@@ -222,9 +210,11 @@
                                 $("#file_inputs_via_js").append(
                                         "<div>" +
                                         "<div id='div_" + l + "'class='col-sm-6' style='border-radius:5px;color:black;background-color:lightgrey;width:48%;margin:10px;padding:5px;'>" +
+                                        // "<form id='form_'"+count+"'>"+
                                         "<label class='col-sm-4'>" + l + "</label>" +
                                         "<input  class='col-sm-6' type='file' required='required' id='" + count + "' name='" + l + "'>" +
                                         "<input type='submit' class='col-sm-2 pull-right upload' id='bt_" + count + "'value='upload'>" +
+                                        // "</form>" +
                                         "</div>" +
                                         "</div>");
                                 count++;
@@ -234,10 +224,11 @@
                                 $("#file_inputs_via_js").append(
                                         "<div>" +
                                         "<div id='div_" + l + "'class='col-sm-6' style='border-radius:5px;color:black;background-color:lightgrey;width:48%;margin:10px;padding:5px;'>" +
+                                        // "<form id='form_'"+count+"'>"+
                                         "<label class='col-sm-4'>" + l + "</label>" +
                                         "<input  class='col-sm-6' type='file' required='true' id='" + count + "' name='" + l + "'>" +
                                         "<input type='submit' class='col-sm-2 pull-right upload' id='bt_" + count + "'value='upload'>" +
-                                        "</div>" +
+                                        // "</form>" +"</div>" +
                                         "</div>");
                                 count++;
                             });
@@ -322,6 +313,8 @@
                 $(document).on("click", ".upload", (function () {
                     btn_id = $(this).attr("id");
                     file_id = btn_id.substr(3);
+                    //form_id = "form_"+file_id;
+                    //console.log(form_id);
                     var file_input = document.getElementById(file_id);
                     var file_name = file_input.value;
                     var file_element = document.getElementById(file_id).files[0];
@@ -336,25 +329,16 @@
                             formdata.append("filename", "userfile");
                             formdata.append("target_filename", file_element.name);
                             formdata.append("upload_path", dir_name);
+                            // console.log(formdata.toString);
                             var ajaxRequest;
-                            try {
-                                ajaxRequest = new XMLHttpRequest();
-                            }
-                            catch (e) {
-                                try {
-                                    ajaxRequest = new ActiveXObject("Msxml2.XMLHTTP");
-                                }
-                                catch (e) {
-                                    try {
-                                        ajaxRequest = new ActiveXObject("Microsoft.XMLHTTP");
-                                    }
-                                    catch (e) {
-                                        alert("Problem with the browser");
-                                    }
-                                }
-                            }
+                            try {ajaxRequest = new XMLHttpRequest();}
+                            catch (e) {try {ajaxRequest = new ActiveXObject("Msxml2.XMLHTTP");}
+                            catch (e) {try {ajaxRequest = new ActiveXObject("Microsoft.XMLHTTP");}
+                            catch (e) {alert("Problem with the browser");}}}
+                            
                             // console.log("dir name is :" + dir_name);
-                            ajaxRequest.open("POST", base_url + "templatecontroller/ajaxy", false);
+                            // console.log("Baseurl is :"+base_url+ "templatecontroller/ajaxy/");
+                            ajaxRequest.open("POST", base_url + "templatecontroller/ajaxy/", false);
                             ajaxRequest.send(formdata);
                             div = document.getElementById("div_" + file_element.name);
                             // console.log("response");

@@ -1,5 +1,7 @@
 @media (min-width: 980px) {
-
+	footer{
+		display: none
+	}
 }
 
 @media (min-width: 768px) and (max-width: 979px) {
@@ -227,6 +229,9 @@
 @media (max-width: 740px) {
     #task_notificatoin_bar,#mail_notificatoin_bar,#alert_notificatoin_bar{
         display: none;
+    }
+    footer{
+    	display:block;
     }
 }
 

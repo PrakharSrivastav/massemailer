@@ -8,7 +8,7 @@
         <meta name="keyword" content="Creative, Dashboard, Admin, Template, Theme, Bootstrap, Responsive, Retina, Minimal">
         <link rel="shortcut icon" href="img/favicon.png">
 
-        <title>Create Templates</title>
+        <title>Manage Templates</title>
         <?php
         $this->load->helper('html');
         echo link_tag('resources/css/bootstrap.min.css');

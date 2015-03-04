@@ -38,14 +38,28 @@ class Masteradmin extends CI_Controller {
 					// $admin_email;
 					$this -> load -> model("User_model", "user");
 					$current_quota = $this -> user -> get_user_field($admin_email, "quota_total");
-					$update_data = array('first_name' => $first_name, "last_name" => $last_name, "expire_date" => $ex_date, 'quota_total' => $current_quota + $quota_total, 'quota_month' => $quota_month);
+					$update_data = array(
+						'first_name' => $first_name, 
+						"last_name" => $last_name, 
+						"expire_date" => $ex_date, 
+						'quota_total' => $current_quota + $quota_total, 
+						'quota_month' => $quota_month
+					);
 					$return_status = $this -> user -> update_user_detail_from_edit_form($admin_email, $update_data);
 					//echo "the return status is $return_status";
 
 					# log add quota event
 					$user_id = $this -> user -> get_user_field($admin_email, "user_id");
 					$this -> load -> model("Event_model", "event");
-					$data = array("e_name" => "ADD_QUOTA", "e_amount" => $quota_total, "e_details" => "MASTER_ADMIN", "e_user_to" => $user_id, "e_user_by" => $this -> session -> userdata("user_id"), "e_info" => "Quota assigned to group admin", "e_date" => date("Y-m-d H:i:s"));
+					$data = array(
+						"e_name" => "ADD_QUOTA", 
+						"e_amount" => $quota_total, 
+						"e_details" => "MASTER_ADMIN", 
+						"e_user_to" => $user_id, 
+						"e_user_by" => $this -> session -> userdata("user_id"), 
+						"e_info" => "Quota assigned to group admin", 
+						"e_date" => date("Y-m-d H:i:s")
+					);
 
 					$this -> event -> insert(array($data));
 
@@ -195,17 +209,60 @@ class Masteradmin extends CI_Controller {
 				$email = $this -> input -> post('email');
 				$fname = $this -> input -> post('firstname');
 				$activation_link = base_url() . "authentication/activation/" . $email . '/' . $activation_code;
-
+				
+				
+				if(empty($email) || (filter_var($email, FILTER_VALIDATE_EMAIL) === false)){
+					throw new Exception ("Please provide a valid value for the email address. Please go back and try again");
+				}
 				# For SMTP either 0 or 1 is sent from the form.
 				# 0 means groups admin's primary SMTP details will be assigned to user
 				# 1 means group admin's secondary(test) SMTP details will be assigned to user
 				$smtp_address_type = $this -> input -> post("smtp_detail");
 
 				# get the email corresponding to the above values
-				$where = array("user_id" => $this -> session -> userdata("user_id"), "email" => $this -> session -> userdata("email"), "user_role" => $this -> session -> userdata("user_role"), );
+				$where = array(
+					"user_id" => $this -> session -> userdata("user_id"), 
+					"email" => $this -> session -> userdata("email"), 
+					"user_role" => $this -> session -> userdata("user_role"), 
+				);
 
 				# prepare the data for inserting into the database
-				$data = array("first_name" => trim($this -> input -> post("firstname")), "last_name" => trim($this -> input -> post("lastname")), "address_line_1" => trim($this -> input -> post("address")), "address_line_2" => trim($this -> input -> post("address2")), "city" => trim($this -> input -> post("city")), "state" => trim($this -> input -> post("state")), "pincode" => trim($this -> input -> post("pincode")), "email" => trim($this -> input -> post("email")), "contact_num" => trim($this -> input -> post("c_number")), "mobile_num" => trim($this -> input -> post("m_number")), "creation_date" => date("Y-m-d H:i:s"), "expire_date" => trim($this -> input -> post("ex_date")), "smtp_saccount" => trim($this -> input -> post("smtp_subaccount")), "quota_month" => trim($this -> input -> post("quota_monthly")), "smtp_test_saccount" => trim($this -> input -> post("test_smtp_subaccount")), "sender_email" => trim($this -> input -> post("s_email")), "bounce_email" => trim($this -> input -> post("b_email")), "smtp_user" => trim($this -> input -> post("smtp_user")), "smtp_pass" => trim($this -> input -> post("smtp_pass")), "smtp_port" => trim($this -> input -> post("smtp_port")), "smtp_auth" => trim($this -> input -> post("smtp_auth")), "smtp_host" => trim($this -> input -> post("smtp_host")), "test_smtp_user" => trim($this -> input -> post("test_smtp_user")), "test_smtp_pass" => trim($this -> input -> post("test_smtp_pass")), "test_smtp_port" => trim($this -> input -> post("test_smtp_port")), "test_smtp_auth" => trim($this -> input -> post("test_smtp_auth")), "test_smtp_host" => trim($this -> input -> post("test_smtp_host")), "test_smtp_sender_id" => trim($this -> input -> post("test_s_email")), "user_type" => 2, "login_name" => trim($this -> input -> post("firstname")) . " " . trim($this -> input -> post("lastname")), "login_password" => password_hash(trim($this -> input -> post("password")), PASSWORD_BCRYPT), "user_role" => trim($this -> input -> post("user_role")), "is_active" => 0, "activation_code" => $activation_code, "user_admin_id" => $this -> session -> userdata("user_id"));
+				$data = array(
+					"first_name" 			=> trim($this -> input -> post("firstname")), 
+					"last_name" 			=> trim($this -> input -> post("lastname")), 
+					"address_line_1" 		=> trim($this -> input -> post("address")), 
+					"address_line_2" 		=> trim($this -> input -> post("address2")), 
+					"city"			 		=> trim($this -> input -> post("city")), 
+					"state" 				=> trim($this -> input -> post("state")), 
+					"pincode" 				=> trim($this -> input -> post("pincode")), 
+					"email" 				=> trim($this -> input -> post("email")), 
+					"contact_num" 			=> trim($this -> input -> post("c_number")), 
+					"mobile_num"			=> trim($this -> input -> post("m_number")), 
+					"creation_date"  		=> date("Y-m-d H:i:s"), 
+					"expire_date" 			=> trim($this -> input -> post("ex_date")), 
+					"smtp_saccount" 		=> trim($this -> input -> post("smtp_subaccount")), 
+					"quota_month" 			=> trim($this -> input -> post("quota_monthly")), 
+					"smtp_test_saccount" 	=> trim($this -> input -> post("test_smtp_subaccount")), 
+					"sender_email" 			=> trim($this -> input -> post("s_email")), 
+					"bounce_email" 			=> trim($this -> input -> post("b_email")), 
+					"smtp_user"				=> trim($this -> input -> post("smtp_user")), 
+					"smtp_pass" 			=> trim($this -> input -> post("smtp_pass")), 
+					"smtp_port" 			=> trim($this -> input -> post("smtp_port")), 
+					"smtp_auth"  			=> trim($this -> input -> post("smtp_auth")), 
+					"smtp_host"  			=> trim($this -> input -> post("smtp_host")), 
+					"test_smtp_user"  		=> trim($this -> input -> post("test_smtp_user")), 
+					"test_smtp_pass"   		=> trim($this -> input -> post("test_smtp_pass")), 
+					"test_smtp_port"   		=> trim($this -> input -> post("test_smtp_port")), 
+					"test_smtp_auth"   		=> trim($this -> input -> post("test_smtp_auth")), 
+					"test_smtp_host"   		=> trim($this -> input -> post("test_smtp_host")), 
+					"test_smtp_sender_id" 	=> trim($this -> input -> post("test_s_email")), 
+					"user_type"   			=> 2, 
+					"login_name" 			=> trim($this -> input -> post("firstname")) . " " . trim($this -> input -> post("lastname")), 
+					"login_password" 		=> password_hash(trim($this -> input -> post("password")), PASSWORD_BCRYPT), 
+					"user_role" 			=> trim($this -> input -> post("user_role")), "is_active" => 0, 
+					"activation_code" 		=> $activation_code, 
+					"user_admin_id" 		=> $this -> session -> userdata("user_id")
+				);
 
 				# If the user details are inserted properly into the user table
 				if ($this -> user -> generic_user_insert(array($data))) {
@@ -341,7 +398,18 @@ class Masteradmin extends CI_Controller {
 		try {
 			if ($this -> session -> has_userdata("is_logged_in") && $this -> session -> userdata('is_logged_in') && $this -> session -> userdata('user_role') === '1') {
 
-				$query = "select a.e_name as e_name, a.e_amount as e_amount , a.e_details as e_details, c.email as e_user_by,b.email as e_user_to, a.e_info as e_info , a.e_date as e_date " . "from events a, user b, user c" . " where a.e_user_to = b.user_id and " . "a.e_user_by = c.user_id and " . "a.e_name = 'ADD_QUOTA' "
+				$query = "select 
+				a.e_name as e_name, 
+				a.e_amount as e_amount , 
+				a.e_details as e_details, 
+				c.email as e_user_by,
+				b.email as e_user_to, 
+				a.e_info as e_info , 
+				a.e_date as e_date " . 
+				"from events a, user b, user c" . 
+				" where a.e_user_to = b.user_id and " . 
+				"a.e_user_by = c.user_id and " . 
+				"a.e_name is not null "
 				// . "a.e_details = 'MASTER_ADMIN' "
 				."order by e_user_by,e_date DESC";
 
@@ -361,7 +429,30 @@ class Masteradmin extends CI_Controller {
 		try {
 			if ($this -> session -> has_userdata("is_logged_in") && $this -> session -> userdata('is_logged_in') && $this -> session -> userdata('user_role') === '1') {
 
-				$query = "SELECT a.`campaign_id`,d.`list_name`,b.`email`,a.`progress` ,a.`bounce_id`,a.`spam_id`,a.`soft_bounce_id`,a.`click_id`, a.`reject_id`, a.`open_id`, a.`smtp_details`, a.`subscriber_ids`, c.`template_name`, a.`subject`, a.`sender_name` from campaign_data a ,user b,template_master c,list_master d where a.list_id = d.list_id and a.user_id = b.user_id and a.template_id = c.template_id order by campaign_id,a.send_time ";
+				$query = "SELECT 
+				a.`campaign_id`,
+				d.`list_name`,
+				b.`email`,
+				a.`progress` ,
+				a.`bounce_id`,
+				a.`spam_id`,
+				a.`soft_bounce_id`,
+				a.`click_id`, 
+				a.`reject_id`, 
+				a.`open_id`, 
+				a.`smtp_details`, 
+				a.`subscriber_ids`, 
+				c.`template_name`, 
+				a.`subject`, 
+				a.`sender_name` ,
+				a.`sent_emails`,
+				a.`start_time`,
+				a.`send_time`
+				from campaign_data a ,user b,template_master c,list_master d 
+				where a.list_id = d.list_id 
+				and a.user_id = b.user_id 
+				and a.template_id = c.template_id 
+				order by campaign_id,a.send_time ";
 
 				$this -> load -> model("Campaign_model", "campaign");
 
@@ -442,10 +533,13 @@ class Masteradmin extends CI_Controller {
 				a.`quota`,
 				a.`sent_emails`,
 				a.`progress` ,
-				a.`id` 
+				a.`id`  ,
+				a.`start_time`,
+				a.`send_time`
 				from campaign_data a , list_master d ,user c
 				where a.list_id = d.list_id 
 				and a.user_id = c.user_id
+				and a.progress != '3'
 				order by campaign_id,a.send_time" ;
 
 				$this -> load -> model("Campaign_model", "campaign");
@@ -465,11 +559,8 @@ class Masteradmin extends CI_Controller {
 		try {
 			if ($this -> session -> has_userdata("is_logged_in") && $this -> session -> userdata('is_logged_in') && $this -> session -> userdata('user_role') === '1') {
 						
-				$where = array("id"=>$row_id);
-				$update = array("progress"=>'4');
-				$data = array("where"=>$where,"update"=>$update);
 				$this -> load -> model("Campaign_model", "campaign");
-				$this->campaign->generic_campaign_update(array($data));
+				$this->campaign->stop_campaigns($row_id);
 				
 				redirect("masteradmin/manage_queues");
 			} else {
@@ -479,18 +570,135 @@ class Masteradmin extends CI_Controller {
 			$this -> load -> view("pages/error_message", array("message" => $e -> getMessage()));
 		}
 	}
-	
+	/*
+		public function start_campaign($row_id){
+			try {
+				if ($this -> session -> has_userdata("is_logged_in") && $this -> session -> userdata('is_logged_in') && $this -> session -> userdata('user_role') === '1') {
+							
+					$where = array("id"=>$row_id,"progress"=>'4');
+					$update = array("progress"=>'2');
+					$data = array("where"=>$where,"update"=>$update);
+					$this -> load -> model("Campaign_model", "campaign");
+					$this->campaign->generic_campaign_update(array($data));
+					
+					redirect("masteradmin/manage_queues");
+				} else {
+					$this -> load -> view("pages/error_message", array("message" => "You are not authorized to view this page"));
+				}
+			} catch (Exception $e) {
+				$this -> load -> view("pages/error_message", array("message" => $e -> getMessage()));
+			}
+		}	
+	*/
 	public function start_campaign($row_id){
 		try {
 			if ($this -> session -> has_userdata("is_logged_in") && $this -> session -> userdata('is_logged_in') && $this -> session -> userdata('user_role') === '1') {
-						
-				$where = array("id"=>$row_id,"progress"=>'4');
-				$update = array("progress"=>'2');
-				$data = array("where"=>$where,"update"=>$update);
+				# Get the current status for this row-id
 				$this -> load -> model("Campaign_model", "campaign");
-				$this->campaign->generic_campaign_update(array($data));
+				$this -> load -> model("User_model", "user");
 				
-				redirect("masteradmin/manage_queues");
+				$query = "SELECT * from campaign_data where id = '".$row_id."'" ;
+				$return = $this -> campaign -> run_query($query);
+				
+				if(isset($return[0]['progress']) && !empty($return[0]['progress'])){
+						
+					# if progress == 5
+					if($return[0]['progress'] === '5'){
+						# if there are any queued or in progress records
+						# this is basically done to get the timestamp for the latest queued record	
+						$sql = "SELECT max(send_time) as time from campaign_data where progress in ('1','2') and user_id = '".trim($return[0]['user_id'])."'";
+						$return_data = $this -> campaign -> run_query($sql);
+						
+						# if there are no queued or in progress records
+						if(empty($return_data[0])){
+							# then make the current timestamp as the start time for the queue
+							$start_time = new DateTime("now");
+							
+							# update the campaign_data table with correct starttime and make the status as queued
+							$where = array("id"=>$row_id,"progress"=>'5');
+							$update = array(
+								"progress"=>'1',
+								'start_time'=>$start_time->format("Y-m-d H:i:s"),
+								"send_time"=>$start_time->format("Y-m-d H:i:s")
+							);
+							$data = array("where"=>$where,"update"=>$update);
+							$this->campaign->generic_campaign_update(array($data));
+							
+							# update the timestamp and deduct the quota from the user table
+							$quota = count(unserialize($return[0]['subscriber_ids']));
+							$where = array("user_id" => trim($return[0]['user_id']));
+							
+							$user_details = $this->user->generic_user_select($where);
+							// print_r($user_details);
+							$quota_used = (int)$user_details[0]["quota_used"];
+							$quota_used = $quota_used + $quota;
+							
+							$update = array("send_time"=>$start_time->format("Y-m-d H:i:s"),"quota_used" =>$quota_used);
+		                    $update_arr = array(array("where_array" => $where,"update_array" => $update));
+							$this->user->generic_update_user_data($update_arr);
+							
+							# update the event details in the event table
+							$this -> load -> model("Event_model", "event");
+							$data = array(
+								"e_name" => "ADD_QUOTA", 
+								"e_amount" => $quota, 
+								"e_details" => "MASTER_ADMIN", 
+								"e_user_to" => $return[0]['user_id'], 
+								"e_user_by" => $this->session->userdata("user_id"), 
+								"e_info" => "Queued Aborted campaign. Row-id:".$row_id, 
+								"e_date" => date("Y-m-d H:i:s")
+							);
+							$this -> event -> insert(array($data));
+						}
+						else{
+							$db_time = new DateTime($return_data[0]['time']);
+							$start_time = $db_time->add(new DateInterval("P0Y0M0DT1H0M0S"));
+							$where = array("id"=>$row_id,"progress"=>'5');
+							$update = array(
+								"progress"=>'1',
+								'start_time'=>$start_time->format("Y-m-d H:i:s"),
+								"send_time"=>$start_time->format("Y-m-d H:i:s")
+							);
+							$data = array("where"=>$where,"update"=>$update);
+							$this->campaign->generic_campaign_update(array($data));
+							
+							
+							# update the timestamp and deduct the quota from the user table
+							$quota = count(unserialize($return[0]['subscriber_ids']));
+							$where = array("user_id" => trim($return[0]['user_id']));
+							
+							$user_details = $this->user->generic_user_select($where);
+							$quota_used = (int)$user_details[0]["quota_used"];
+							$quota_used = $quota_used + $quota;
+							
+							$update = array("send_time"=>$start_time->format("Y-m-d H:i:s"),"quota_used" =>$quota_used);
+		                    $update_arr = array(array("where_array" => $where,"update_array" => $update));
+							$this->user->generic_update_user_data($update_arr);
+							
+							# update the event details in the event table
+							$this -> load -> model("Event_model", "event");
+							$data = array(
+								"e_name" => "ADD_QUOTA", 
+								"e_amount" => $quota, 
+								"e_details" => "MASTER_ADMIN", 
+								"e_user_to" => $return[0]['user_id'], 
+								"e_user_by" => $this->session->userdata("user_id"), 
+								"e_info" => "Queued Aborted campaign. Row-id:".$row_id, 
+								"e_date" => date("Y-m-d H:i:s")
+							);
+							$this -> event -> insert(array($data));	
+						}
+						redirect("masteradmin/manage_queues");
+					}
+					else{
+						# if progress == 4 
+						$where = array("id"=>$row_id,"progress"=>'4');
+						$update = array("progress"=>'2');
+						$data = array("where"=>$where,"update"=>$update);
+						$this->campaign->generic_campaign_update(array($data));
+						redirect("masteradmin/manage_queues");
+					}
+				}				
 			} else {
 				$this -> load -> view("pages/error_message", array("message" => "You are not authorized to view this page"));
 			}
@@ -498,6 +706,4 @@ class Masteradmin extends CI_Controller {
 			$this -> load -> view("pages/error_message", array("message" => $e -> getMessage()));
 		}
 	}
-	
-
 }

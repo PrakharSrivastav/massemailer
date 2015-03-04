@@ -64,12 +64,15 @@
                                </div>
                            </section>
                        </div>-->
-           
+            <span style="color:black;" class="h5">For unsubscription, use this url:  </span> <span style="color:blue;"><?php echo base_url()."unsubscribe" ?></span>
+            <br /><br />
             <form method='post' enctype="multipart/form-data" action = 'savetemplate' id="template_form" role="form">
             <div class="panel panel-primary row">
                 <div class="panel-heading">
                     <header class="panel-title" style="background-color: #5dc3e7">
-                        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#create-template"> Create email template </a>
+                        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#create-template"> 
+                        	Create email template. 
+                        </a>
                     </header>
                 </div>
                 <section id="create-template" class="panel panel-collapse collapse in">

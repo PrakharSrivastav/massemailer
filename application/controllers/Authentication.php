@@ -26,8 +26,8 @@ class Authentication extends CI_Controller {
         if ($return_array['return_status'] === true) {
 
             # upload directory location
-            $dir_name = strtolower(str_replace(array("@", "."), "_", "upload/" . $return_array['user_name'] . $login_email));
-//            print_r($dir_name);
+            $dir_name = strtolower(str_replace(array("@", "."," "), "_", "upload/" . $return_array['user_name'] . $login_email));
+            // print_r($dir_name);
             # Check if the upload directory was created during the activation process
             if (is_dir($dir_name)) {
 
@@ -118,7 +118,7 @@ class Authentication extends CI_Controller {
                     "smtp_debug" => 0,
                     "smtp_auth" => true,
                     "smtp_port" => (int) $email_admin_details[0]['smtp_port'],
-                    "smtp_user" => $email_admin_details[0]['email'],
+                    "smtp_user" => $email_admin_details[0]['sender_email'],
                     "smtp_pass" => trim($email_admin_details[0]['smtp_pass']),
                     "smtp_sec" => $email_admin_details[0]['smtp_auth'],
                     "smtp_sub" => "You activation link",
@@ -128,10 +128,10 @@ class Authentication extends CI_Controller {
                             "email" => $email,
                             "name" => $fname)),
                     "smtp_from" => array(array(
-                            "email" => $email_admin_details[0]['email'],
+                            "email" => $email_admin_details[0]['sender_email'],
                             "name" => $email_admin_details[0]['first_name']),),
                     "smtp_reply_to" => array(array(
-                            "email" => $email_admin_details[0]['email'],
+                            "email" => $email_admin_details[0]['sender_email'],
                             "name" => $email_admin_details[0]['first_name']),),
                 );
 
@@ -208,7 +208,7 @@ class Authentication extends CI_Controller {
                         "smtp_debug" => 0,
                         "smtp_auth" => true,
                         "smtp_port" => (int) $email_admin_details[0]['smtp_port'],
-                        "smtp_user" => $email_admin_details[0]['email'],
+                        "smtp_user" => $email_admin_details[0]['sender_email'],
                         "smtp_pass" => trim($email_admin_details[0]['smtp_pass']),
                         "smtp_sec" => $email_admin_details[0]['smtp_auth'],
                         "smtp_sub" => "Your account is successfully activated.",
@@ -219,10 +219,10 @@ class Authentication extends CI_Controller {
                                 "email" => $email,
                                 "name" => $user_name),),
                         "smtp_from" => array(array(
-                                "email" => $email_admin_details[0]['email'],
+                                "email" => $email_admin_details[0]['sender_email'],
                                 "name" => $email_admin_details[0]['first_name']),),
                         "smtp_reply_to" => array(array(
-                                "email" => $email_admin_details[0]['email'],
+                                "email" => $email_admin_details[0]['sender_email'],
                                 "name" => $email_admin_details[0]['first_name']),),
                     );
 
@@ -233,7 +233,7 @@ class Authentication extends CI_Controller {
                     if ($this->emailer->send_email()) {
 
                         # provide the drectory name
-                        $dir_name = strtolower(str_replace(array("@", "."), "_", "upload/" . $user_name . $email));
+                        $dir_name = strtolower(str_replace(array("@", "."," "), "_", "upload/" . $user_name . $email));
 
                         # if the directory does nto exist, create the directory
                         if (!is_dir($dir_name)) {
@@ -372,6 +372,16 @@ class Authentication extends CI_Controller {
                 if ($status) {
                     $data = array("status" => $status);
                 }
+				# load the user model
+            	$this->load->model('User_model', 'user');
+				$user_data = $this->user->generic_user_select(array(
+                        "email" => $this->session->userdata("email"),
+                        "user_role" => $this->session->userdata("user_role"),
+                        "user_id"=>$this->session->userdata("user_id"))
+                        
+                 );
+                 $data["user_details"] = $user_data;
+                 // print_r($data);
                 # show user the form to change details
                 $this->load->view("pages/change-profile-details", $data);
             } else {

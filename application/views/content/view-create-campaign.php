@@ -45,7 +45,7 @@
                                 <select id="list_name" name="list_name[]" multiple class="input-sm form-control" size="10" required="required">
                                     <option></option>
                                     <?php foreach ($list_data as $list) { ?>
-                                        <option <?php echo  set_select('list_name', $list[0]) ?> value="<?php echo $list[0]; ?>"><?php echo $list[1]; ?></option>
+                                        <option <?php echo  set_select('list_name', $list[0]) ?> value="<?php echo $list[0]; ?>"><?php echo $list[1]." | ".$list['count']; ?></option>
                                     <?php } ?> 
                                 </select>
                             </div>
@@ -88,11 +88,11 @@
                         -->
                         <div class="form-group">
                             <div class="col-sm-6">
-                                <button type="submit" class="btn input-sm  btn-compose">Add to sending queue</button></form>
+                                <button type="submit" class="btn input-sm btn-compose" style="padding-bottom:35px;">Add to sending queue</button></form>
                             </div>
                             <div class="col-sm-6">
                                 <form id="preview_template_form" target="_blank">
-                                <button type="button" id="preview_template" class="btn input-sm btn-compose">Preview Campaign</button>
+                                <button type="button" id="preview_template" class="btn input-sm btn-compose" style="padding-bottom:35px">Preview Campaign</button>
                                 </form>
                             </div>
                         </div>

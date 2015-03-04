@@ -53,9 +53,9 @@
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" id="signup_first_name" name="signup_first_name" placeholder="Enter First name">	
                                 </div>
-                                <label for="signup_last_name" class="control-label col-sm-3">Last Name(*)</label>
+                                <label for="signup_last_name" class="control-label col-sm-3">Company Name(*)</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control" id="signup_last_name" name="signup_last_name" placeholder="Enter Last name">
+                                    <input type="text" class="form-control" id="signup_last_name" name="signup_last_name" placeholder="Enter Company name">
                                 </div>
                                 <label for="signup_email" class="control-label col-sm-3">Email-id(*)</label>
                                 <div class="col-sm-9">

@@ -35,55 +35,55 @@
                                 <div class="form-group ">
                                     <label for="firstname" class="control-label col-lg-3">First name<span class="required">*</span></label>
                                     <div class="col-lg-9">
-                                        <input class=" form-control input-sm" id="firstname" name="firstname" type="text" />
+                                        <input class=" form-control input-sm" id="firstname" name="firstname" type="text" required="required" value="<?php echo set_value('firstname',$user_details[0]["first_name"]); ?>"/>
                                     </div>
                                 </div>
                                 <div class="form-group ">
                                     <label for="lastname" class="control-label col-lg-3">Last name<span class="required">*</span></label>
                                     <div class="col-lg-9">
-                                        <input class=" form-control input-sm" id="lastname" name="lastname" type="text" />
+                                        <input class=" form-control input-sm" id="lastname" name="lastname" type="text" required="required" value="<?php echo set_value('lastname',$user_details[0]["last_name"]); ?>"/>
                                     </div>
                                 </div>
                                 <div class="form-group ">
                                     <label for="address" class="control-label col-lg-3">Address-1<span class="required">*</span></label>
                                     <div class="col-lg-9">
-                                        <input class="form-control input-sm" id="address" name="address" type="text" />
+                                        <input class="form-control input-sm" id="address" name="address" type="text" required="required" value="<?php echo set_value('address',$user_details[0]["address_line_1"]); ?>"/>
                                     </div>
                                 </div>
                                 <div class="form-group ">
                                     <label for="address2" class="control-label col-lg-3">Address-2</label>
                                     <div class="col-lg-9">
-                                        <input class="form-control input-sm" id="address2" name="address2" type="text" />
+                                        <input class="form-control input-sm" id="address2" name="address2" type="text" value="<?php echo set_value('address2',$user_details[0]["address_line_2"]); ?>"/>
                                     </div>
                                 </div>
                                 <div class="form-group ">
                                     <label for="city" class="control-label col-lg-3">City<span class="required">*</span></label>
                                     <div class="col-lg-9">
-                                        <input class=" form-control input-sm" id="city" name="city" type="text"/>
+                                        <input class=" form-control input-sm" id="city" name="city" type="text" required="required" value="<?php echo set_value('city',$user_details[0]["city"]); ?>"/>
                                     </div>
                                 </div>
                                 <div class="form-group ">
                                     <label for="state" class="control-label col-lg-3">State<span class="required">*</span></label>
                                     <div class="col-lg-9">
-                                        <input class=" form-control input-sm" id="state" name="state" type="text"/>
+                                        <input class=" form-control input-sm" id="state" name="state" type="text" required="required" value="<?php echo set_value('state',$user_details[0]["state"]); ?>"/>
                                     </div>
                                 </div>
                                 <div class="form-group ">
                                     <label for="pincode" class="control-label col-lg-3">Pincode<span class="required">*</span></label>
                                     <div class="col-lg-9">
-                                        <input class="form-control input-sm" id="pincode" name="pincode" type="text"/>
+                                        <input class="form-control input-sm" id="pincode" name="pincode" type="text" required="required" value="<?php echo set_value('pincode',$user_details[0]["pincode"]); ?>"/>
                                     </div>
                                 </div>
                                 <div class="form-group ">
                                     <label for="c_number" class="control-label col-lg-3">Contact #</label>
                                     <div class="col-lg-9">
-                                        <input class=" form-control input-sm" id="c_number" name="c_number" type="text"/>
+                                        <input class=" form-control input-sm" id="c_number" name="c_number" type="text" value="<?php echo set_value('c_number',$user_details[0]["contact_num"]); ?>"/>
                                     </div>
                                 </div>
                                 <div class="form-group ">
                                     <label for="m_number" class="control-label col-lg-3">Mobile #<span class="required">*</span></label>
                                     <div class="col-lg-9">
-                                        <input class="form-control input-sm" id="m_number" name="m_number" type="text"/>
+                                        <input class="form-control input-sm" id="m_number" name="m_number" type="text" required="required" value="<?php echo set_value('m_number',$user_details[0]["mobile_num"]); ?>"/>
                                     </div>
                                 </div>
                                 <div class="form-group ">

@@ -781,13 +781,13 @@ class GroupAdmin extends CI_Controller {
 		try {
 			if ($this -> session -> has_userdata("is_logged_in") && $this -> session -> userdata('is_logged_in') && $this -> session -> userdata('user_role') === '2') {
 
-				$query = "select a.e_name as e_name, a.e_amount as e_amount , a.e_details as e_details, c.email as e_user_by, b.email as e_user_to, a.e_info as e_info , a.e_date as e_date". 
-				" from events a, user b, user c ".
-				"where a.e_user_to = b.user_id ".
-				"and a.e_user_by = c.user_id ".
-				" and (a.e_user_by = '".trim($this->session->userdata("user_id"))."' or a.e_user_to = '".trim($this->session->userdata("user_id"))."')". 
-				" and a.e_name = 'ADD_QUOTA'". 
-				" order by e_user_by,e_date DESC ";
+				$query = "select a.e_name as e_name, a.e_amount as e_amount , a.e_details as e_details, c.email as e_user_by, b.email as e_user_to, a.e_info as e_info , a.e_date as e_date "
+					    . "from events a, user b, user c "
+					    . "where a.e_user_to = b.user_id "
+					    . "and a.e_user_by = c.user_id "
+					    . "and a.e_name in ('ADD_QUOTA','EMAILS_QUEUED') "
+					    . "and (a.e_user_to = '".$this -> session -> userdata('user_id')."' or a.e_user_by = '".$this -> session -> userdata('user_id')."')"
+					    . "order by e_user_by,e_date DESC ";
 
 				$this -> load -> model("Event_model", "event");
 
@@ -805,7 +805,24 @@ class GroupAdmin extends CI_Controller {
 		try {
 			if ($this -> session -> has_userdata("is_logged_in") && $this -> session -> userdata('is_logged_in') && $this -> session -> userdata('user_role') === '2') {
 
-				$query = "SELECT a.`campaign_id`,d.`list_name`,b.`email`,a.`progress` ,a.`bounce_id`,a.`spam_id`,a.`soft_bounce_id`,a.`click_id`, a.`reject_id`, a.`open_id`, a.`smtp_details`, a.`subscriber_ids`, c.`template_name`, a.`subject`, a.`sender_name`".
+				$query = "SELECT a.`campaign_id`,
+				d.`list_name`,
+				b.`email`,
+				a.`progress` ,
+				a.`bounce_id`,
+				a.`spam_id`,
+				a.`soft_bounce_id`,
+				a.`click_id`, 
+				a.`reject_id`, 
+				a.`open_id`, 
+				a.`smtp_details`, 
+				a.`subscriber_ids`, 
+				c.`template_name`, 
+				a.`subject`, 
+				a.`sender_name` ,
+				a.`sent_emails`,
+				a.`start_time`,
+				a.`send_time`".
 				" from campaign_data a , user b, template_master c, list_master d".
 				" where a.list_id = d.list_id".
 				" and a.user_id = b.user_id".
@@ -912,10 +929,13 @@ class GroupAdmin extends CI_Controller {
 				a.`quota`,
 				a.`sent_emails`,
 				a.`progress` ,
-				a.`id` 
+				a.`id` ,
+				a.`start_time`,
+				a.`send_time`
 				from campaign_data a , list_master d ,user c
 				where a.list_id = d.list_id 
 				and a.user_id = c.user_id
+				and a.progress <> '3'
 				and c.user_admin_id = '".trim($this->session->userdata("user_id"))."'
 				order by campaign_id,a.send_time" ;
 
@@ -934,11 +954,8 @@ class GroupAdmin extends CI_Controller {
 		try {
 			if ($this -> session -> has_userdata("is_logged_in") && $this -> session -> userdata('is_logged_in') && $this -> session -> userdata('user_role') === '2') {
 						
-				$where = array("id"=>$row_id);
-				$update = array("progress"=>'4');
-				$data = array("where"=>$where,"update"=>$update);
 				$this -> load -> model("Campaign_model", "campaign");
-				$this->campaign->generic_campaign_update(array($data));
+				$this->campaign->stop_campaigns($row_id);
 				
 				redirect("groupadmin/manage_queues");
 			} else {
@@ -949,17 +966,137 @@ class GroupAdmin extends CI_Controller {
 		}
 	}
 	
+	/*
 	public function start_campaign($row_id){
+			try {
+				if ($this -> session -> has_userdata("is_logged_in") && $this -> session -> userdata('is_logged_in') && $this -> session -> userdata('user_role') === '2') {
+							
+					$where = array("id"=>$row_id,"progress"=>'4');
+					$update = array("progress"=>'2');
+					$data = array("where"=>$where,"update"=>$update);
+					$this -> load -> model("Campaign_model", "campaign");
+					$this->campaign->generic_campaign_update(array($data));
+					
+					redirect("groupadmin/manage_queues");
+				} else {
+					$this -> load -> view("pages/error_message", array("message" => "You are not authorized to view this page"));
+				}
+			} catch (Exception $e) {
+				$this -> load -> view("pages/error_message", array("message" => $e -> getMessage()));
+			}
+		}
+	 */
+
+	 public function start_campaign($row_id){
 		try {
 			if ($this -> session -> has_userdata("is_logged_in") && $this -> session -> userdata('is_logged_in') && $this -> session -> userdata('user_role') === '2') {
-						
-				$where = array("id"=>$row_id,"progress"=>'4');
-				$update = array("progress"=>'2');
-				$data = array("where"=>$where,"update"=>$update);
+				# Get the current status for this row-id
 				$this -> load -> model("Campaign_model", "campaign");
-				$this->campaign->generic_campaign_update(array($data));
+				$this -> load -> model("User_model", "user");
 				
-				redirect("groupadmin/manage_queues");
+				$query = "SELECT * from campaign_data 
+				where id = '".$row_id."' ";
+				//and user_id = '".trim($this->session->userdata("user_id"))."'";
+				$return = $this -> campaign -> run_query($query);
+				//print_r($return);
+				
+				if(isset($return[0]['progress']) && !empty($return[0]['progress'])){
+					if($return[0]['progress'] === '5'){
+						# if progress == 5
+						$sql = "SELECT max(send_time) as time from campaign_data 
+						where progress in ('1','2') 
+						and user_id = '".trim(trim($return[0]['user_id']))."'";
+						$return_data = $this -> campaign -> run_query($sql);
+						//print_r($return_data);
+						if(empty($return_data[0])){
+							# then make the current timestamp as the start time for the queue
+							$start_time = new DateTime("now");
+							
+							# update the campaign_data table with correct starttime and make the status as queued
+							$where = array("id"=>$row_id,"progress"=>'5');
+							$update = array(
+								"progress"=>'1',
+								'start_time'=>$start_time->format("Y-m-d H:i:s"),
+								"send_time"=>$start_time->format("Y-m-d H:i:s")
+							);
+							$data = array("where"=>$where,"update"=>$update);
+							$this->campaign->generic_campaign_update(array($data));
+							
+							# update the timestamp and deduct the quota from the user table
+							$quota = count(unserialize($return[0]['subscriber_ids']));
+							$where = array("user_id" => trim($return[0]['user_id']));
+							
+							$user_details = $this->user->generic_user_select($where);
+							// print_r($user_details);
+							$quota_used = (int)$user_details[0]["quota_used"];
+							$quota_used = $quota_used + $quota;
+							
+							$update = array("send_time"=>$start_time->format("Y-m-d H:i:s"),"quota_used" =>$quota_used);
+		                    $update_arr = array(array("where_array" => $where,"update_array" => $update));
+							$this->user->generic_update_user_data($update_arr);
+							
+							# update the event details in the event table
+							$this -> load -> model("Event_model", "event");
+							$data = array(
+								"e_name" => "ADD_QUOTA", 
+								"e_amount" => $quota, 
+								"e_details" => "GROUP_ADMIN", 
+								"e_user_to" => $return[0]['user_id'], 
+								"e_user_by" => $this->session->userdata("user_id"), 
+								"e_info" => "Queued Aborted campaign. Row-id:".$row_id, 
+								"e_date" => date("Y-m-d H:i:s")
+							);
+							$this -> event -> insert(array($data));
+						}
+						else{
+							$db_time = new DateTime($return_data[0]['time']);
+							$start_time = $db_time->add(new DateInterval("P0Y0M0DT1H0M0S"));
+							$where = array("id"=>$row_id,"progress"=>'5');
+							$update = array(
+								"progress"=>'1',
+								'start_time'=>$start_time->format("Y-m-d H:i:s"),
+								"send_time"=>$start_time->format("Y-m-d H:i:s")
+							);
+							$data = array("where"=>$where,"update"=>$update);
+							$this->campaign->generic_campaign_update(array($data));
+							
+							
+							# update the timestamp and deduct the quota from the user table
+							$quota = count(unserialize($return[0]['subscriber_ids']));
+							$where = array("user_id" => trim($return[0]['user_id']));
+							
+							$user_details = $this->user->generic_user_select($where);
+							$quota_used = (int)$user_details[0]["quota_used"];
+							$quota_used = $quota_used + $quota;
+							
+							$update = array("send_time"=>$start_time->format("Y-m-d H:i:s"),"quota_used" =>$quota_used);
+		                    $update_arr = array(array("where_array" => $where,"update_array" => $update));
+							$this->user->generic_update_user_data($update_arr);
+							
+							# update the event details in the event table
+							$this -> load -> model("Event_model", "event");
+							$data = array(
+								"e_name" => "ADD_QUOTA", 
+								"e_amount" => $quota, 
+								"e_details" => "GROUP_ADMIN", 
+								"e_user_to" => $return[0]['user_id'], 
+								"e_user_by" => $this->session->userdata("user_id"), 
+								"e_info" => "Queued Aborted campaign. Row-id:".$row_id, 
+								"e_date" => date("Y-m-d H:i:s")
+							);
+							$this -> event -> insert(array($data));	
+						}
+						redirect("groupadmin/manage_queues");
+					}
+					else{
+						# if progress == 4 
+						$where = array("id"=>$row_id,"progress"=>'4');
+						$update = array("progress"=>'2');
+						$data = array("where"=>$where,"update"=>$update);
+						$this->campaign->generic_campaign_update(array($data));
+						redirect("groupadmin/manage_queues");
+					}
+				}				
 			} else {
 				$this -> load -> view("pages/error_message", array("message" => "You are not authorized to view this page"));
 			}

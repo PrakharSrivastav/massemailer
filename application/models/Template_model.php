@@ -178,7 +178,7 @@ class Template_model extends CI_Model {
                       $return_array[] = array($row->email, $row->first_name, $row->template_name, $row->template_id, 0);
                     }
                 }
-
+				
                 $this->db->distinct();
                 $this->db->select("c.email, user.first_name , template_master.template_name, template_master.template_id,user_template.shared_with");
                 $this->db->from("user");
@@ -193,7 +193,9 @@ class Template_model extends CI_Model {
                         $return_array_1[] = array($row->email, $row->first_name, $row->template_name, $row->template_id, $row->shared_with);
                     }
                 }
-                return array_merge($return_array,$return_array_1);
+				// print_r(array_merge($return_array,$return_array_1));
+				// print_r(array_unique(array_merge($return_array,$return_array_1),SORT_REGULAR));
+                return array_unique(array_merge($return_array,$return_array_1),SORT_REGULAR);
             }
         } catch (Exception $e) {
             throw $e;
